@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<title>Fliegende Kuh</title>
+<title>Kühe Stress Test</title>
 
 <style>
     body {
@@ -11,23 +11,22 @@
         overflow: hidden;
         background: #87ceeb;
         font-family: Arial, sans-serif;
+        position: relative;
     }
 
-    /* Die Kuh */
     .cow {
         position: absolute;
-        font-size: 4rem;
+        font-size: 3rem;
         animation: fly 6s linear infinite, spin 2s ease-in-out infinite;
     }
 
-    /* Flugpfad */
+    /* Zufällige Flugpfade */
     @keyframes fly {
-        0%   { top: 10%; left: 5%; }
-        20%  { top: 70%; left: 20%; }
-        40%  { top: 30%; left: 80%; }
-        60%  { top: 85%; left: 50%; }
-        80%  { top: 15%; left: 90%; }
-        100% { top: 10%; left: 5%; }
+        0%   { transform: translate(0, 0); }
+        25%  { transform: translate(300px, -200px); }
+        50%  { transform: translate(-200px, 300px); }
+        75%  { transform: translate(400px, 200px); }
+        100% { transform: translate(0, 0); }
     }
 
     /* Rotieren */
@@ -40,6 +39,27 @@
 </head>
 
 <body>
-    <div class="cow">🐄</div>
+
+<script>
+    // Anzahl der Kühe
+    const cowCount = 40; // ← hier kannst du hochdrehen (z. B. 100)
+
+    for (let i = 0; i < cowCount; i++) {
+        const cow = document.createElement("div");
+        cow.className = "cow";
+        cow.textContent = "🐄";
+
+        // Zufällige Startposition
+        cow.style.top = Math.random() * 90 + "vh";
+        cow.style.left = Math.random() * 90 + "vw";
+
+        // Zufällige Geschwindigkeit
+        const speed = 4 + Math.random() * 6;
+        cow.style.animationDuration = speed + "s, 2s";
+
+        document.body.appendChild(cow);
+    }
+</script>
+
 </body>
 </html>
