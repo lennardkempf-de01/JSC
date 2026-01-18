@@ -2,50 +2,44 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8" />
-<title>JSC – Fancy Animation</title>
+<title>Fliegende Kuh</title>
 
 <style>
-    /* Vollbild-Layout */
     body {
         margin: 0;
         height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         overflow: hidden;
+        background: #87ceeb;
         font-family: Arial, sans-serif;
-        background: linear-gradient(120deg, #ff00c8, #0066ff, #00ffcc);
-        background-size: 300% 300%;
-        animation: gradientFlow 12s ease infinite;
     }
 
-    /* Hintergrund-Animation */
-    @keyframes gradientFlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Glow-Text */
-    h1 {
+    /* Die Kuh */
+    .cow {
+        position: absolute;
         font-size: 4rem;
-        color: white;
-        text-shadow: 0 0 15px rgba(255,255,255,0.8),
-                     0 0 30px rgba(255,0,200,0.8),
-                     0 0 60px rgba(0,150,255,0.8);
-        animation: float 4s ease-in-out infinite;
+        animation: fly 6s linear infinite, spin 2s ease-in-out infinite;
     }
 
-    /* Leichtes Schweben */
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-20px); }
-        100% { transform: translateY(0px); }
+    /* Flugpfad */
+    @keyframes fly {
+        0%   { top: 10%; left: 5%; }
+        20%  { top: 70%; left: 20%; }
+        40%  { top: 30%; left: 80%; }
+        60%  { top: 85%; left: 50%; }
+        80%  { top: 15%; left: 90%; }
+        100% { top: 10%; left: 5%; }
+    }
+
+    /* Rotieren */
+    @keyframes spin {
+        0%   { transform: rotate(0deg); }
+        50%  { transform: rotate(360deg) scale(1.2); }
+        100% { transform: rotate(720deg); }
     }
 </style>
 </head>
 
 <body>
-    <h1>JSC</h1>
+    <div class="cow">🐄</div>
 </body>
 </html>
