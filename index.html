@@ -1,11 +1,51 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Willkommen bei JSC</title>
-  </head>
-  <body>
-    <h1>Hallo Lennard!</h1>
-    <p>Diese Seite läuft über GitHub Pages.</p>
-  </body>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<title>JSC – Fancy Animation</title>
+
+<style>
+    /* Vollbild-Layout */
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(120deg, #ff00c8, #0066ff, #00ffcc);
+        background-size: 300% 300%;
+        animation: gradientFlow 12s ease infinite;
+    }
+
+    /* Hintergrund-Animation */
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Glow-Text */
+    h1 {
+        font-size: 4rem;
+        color: white;
+        text-shadow: 0 0 15px rgba(255,255,255,0.8),
+                     0 0 30px rgba(255,0,200,0.8),
+                     0 0 60px rgba(0,150,255,0.8);
+        animation: float 4s ease-in-out infinite;
+    }
+
+    /* Leichtes Schweben */
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+</style>
+</head>
+
+<body>
+    <h1>JSC</h1>
+</body>
 </html>
