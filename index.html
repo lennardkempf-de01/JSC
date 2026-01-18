@@ -1,73 +1,2398 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Emoji Chaos</title>
-
-<style>
-    body {
-        margin: 0;
-        height: 100vh;
-        overflow: hidden;
-        background: #111;
-        font-family: Arial, sans-serif;
-        position: relative;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jugendfreizeit-OS - Vereinsausflug Planer (Windows 95)</title>
+  <style>
+    /* ===== Windows 95 Look ===== */
+    :root{
+      --w95-bg: #008080;          /* Desktop teal */
+      --w95-face: #c0c0c0;        /* UI face */
+      --w95-shadow: #808080;      /* dark edge */
+      --w95-dark: #000000;        /* deepest edge */
+      --w95-light: #ffffff;       /* light edge */
+      --w95-hilite: #dfdfdf;      /* highlight */
+      --w95-title: #000080;       /* titlebar blue */
+      --w95-titleText: #ffffff;
+      --w95-text: #000000;
+      --w95-muted: #404040;
+      --w95-select: #000080;
+      --w95-selectText: #ffffff;
+      --font: "MS Sans Serif", Tahoma, Arial, sans-serif;
     }
 
-    .emoji {
-        position: absolute;
-        font-size: 2.5rem;
-        animation: move linear infinite, spin ease-in-out infinite;
-        user-select: none;
-        pointer-events: none;
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      background: var(--w95-bg);
+      color: var(--w95-text);
+      overflow-x:hidden;
     }
 
-    /* Zufällige Flugbewegung */
-    @keyframes move {
-        0%   { transform: translate(0, 0); }
-        25%  { transform: translate(300px, -200px); }
-        50%  { transform: translate(-250px, 300px); }
-        75%  { transform: translate(400px, 200px); }
-        100% { transform: translate(0, 0); }
+    /* 3D borders */
+    .outset{
+      border-top: 2px solid var(--w95-light);
+      border-left: 2px solid var(--w95-light);
+      border-right: 2px solid var(--w95-dark);
+      border-bottom: 2px solid var(--w95-dark);
+    }
+    .inset{
+      border-top: 2px solid var(--w95-shadow);
+      border-left: 2px solid var(--w95-shadow);
+      border-right: 2px solid var(--w95-light);
+      border-bottom: 2px solid var(--w95-light);
+    }
+    .bevel{
+      box-shadow: inset 1px 1px 0 var(--w95-hilite), inset -1px -1px 0 var(--w95-shadow);
     }
 
-    /* Drehen + Skalieren */
-    @keyframes spin {
-        0%   { transform: rotate(0deg) scale(1); }
-        50%  { transform: rotate(360deg) scale(1.4); }
-        100% { transform: rotate(720deg) scale(1); }
+    /* Buttons */
+    .btn{
+      font-family: var(--font);
+      font-size: 12px;
+      padding: 4px 10px;
+      background: var(--w95-face);
+      color: var(--w95-text);
+      cursor:pointer;
+      border: none;
     }
-</style>
+    .btn.outset{ padding: 4px 10px; }
+    .btn:active{
+      border-top: 2px solid var(--w95-shadow);
+      border-left: 2px solid var(--w95-shadow);
+      border-right: 2px solid var(--w95-light);
+      border-bottom: 2px solid var(--w95-light);
+      box-shadow: none;
+      transform: translate(1px,1px);
+    }
+    .btn.small{ padding: 3px 8px; font-size:12px; }
+    .btn.block{ width:100%; }
+
+    /* Inputs */
+    input, textarea, select{
+      font-family: var(--font);
+      font-size: 12px;
+      background: #fff;
+      color: var(--w95-text);
+      padding: 3px 5px;
+      border: none;
+      outline: none;
+    }
+    input.inset, textarea.inset, select.inset{ }
+    textarea{ resize: vertical; min-height: 88px; }
+
+    label{
+      display:block;
+      font-size:12px;
+      margin: 0 0 4px;
+      color: var(--w95-text);
+    }
+
+    /* Desktop center window */
+    .desktop{
+      padding: 14px;
+      /* padding-bottom removed (no taskbar) */
+      min-height:100%;
+    }
+
+    .window{
+      position:relative;
+      width: min(1200px, calc(100% - 20px));
+      margin: 0 auto;
+      background: var(--w95-face);
+    }
+
+    .titlebar{
+      height: 24px;
+      background: var(--w95-title);
+      color: var(--w95-titleText);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 0 6px;
+      user-select:none;
+    }
+    .title-left{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-weight:700;
+      font-size:12px;
+      letter-spacing:.2px;
+    }
+    .app-icon{
+      width:16px;height:16px;
+      background: linear-gradient(#fff, #bdbdbd);
+      border: 1px solid #000;
+      position:relative;
+    }
+    .app-icon:after{
+      content:"";
+      position:absolute;
+      inset:3px;
+      border:1px solid #000;
+      opacity:.35;
+    }
+    .win-controls{
+      display:flex; gap:4px; align-items:center;
+    }
+    .winbtn{
+      width: 18px; height: 18px;
+      background: var(--w95-face);
+      display:grid; place-items:center;
+      font-size:12px;
+      line-height:1;
+      color:#000;
+    }
+    .winbtn.outset{ }
+    .winbtn:active{ transform: translate(1px,1px); }
+    button.winbtn{ border:none; padding:0; }
+
+    .menubar{
+      display:flex;
+      gap: 6px;
+      padding: 4px 6px;
+      background: var(--w95-face);
+      border-bottom: 1px solid var(--w95-shadow);
+    }
+    .menuitem{
+      padding: 2px 8px;
+      cursor: default;
+    }
+    .menuitem:hover{
+      background: var(--w95-select);
+      color: var(--w95-selectText);
+    }
+
+    .content{
+      display:grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 8px;
+      padding: 8px;
+    }
+    @media (max-width: 980px){
+      .content{ grid-template-columns: 1fr; }
+    }
+
+    /* Left navigation */
+    nav{
+      background: var(--w95-face);
+      padding: 6px;
+    }
+    .groupbox{
+      padding: 10px 8px 8px;
+      position:relative;
+      background: var(--w95-face);
+    }
+    .groupbox > .legend{
+      position:absolute;
+      top: -9px;
+      left: 10px;
+      background: var(--w95-face);
+      padding: 0 6px;
+      font-size:12px;
+    }
+
+    .navbtn{
+      width:100%;
+      text-align:left;
+      padding: 6px 8px;
+      background: var(--w95-face);
+      border:none;
+      cursor:pointer;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom: 6px;
+      font-size:12px;
+    }
+    .navbtn.outset{ }
+    .navbtn.active{
+      background: var(--w95-select);
+      color: var(--w95-selectText);
+    }
+    .navbtn.active .kbd{ border-color: #fff; color:#fff; }
+    .navtitle{ font-weight:700; }
+    .navdesc{ font-size:11px; color: var(--w95-muted); margin-top:2px; }
+    .navleft{ display:flex; flex-direction:column; }
+    .kbd{
+      font-family: var(--font);
+      font-size: 11px;
+      padding: 1px 6px;
+      border: 1px solid var(--w95-shadow);
+      background: var(--w95-face);
+      color: var(--w95-text);
+    }
+
+    /* Main panel */
+    main{
+      background: var(--w95-face);
+      padding: 6px;
+    }
+    .panel{
+      padding: 10px 8px;
+      background: var(--w95-face);
+    }
+    .section{ display:none; }
+    .section.active{ display:block; }
+    h2{
+      margin:0 0 8px;
+      font-size:14px;
+      font-weight:700;
+    }
+    h3{
+      margin:0 0 8px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start; }
+    .split{ display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+    @media (max-width: 980px){ .split{ grid-template-columns:1fr; } }
+    .twoCols{ display:grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap:8px; }
+    @media (max-width: 980px){ .twoCols{ grid-template-columns:1fr; } }
+
+    .card{
+      background: var(--w95-face);
+      padding: 10px 8px 8px;
+      position:relative;
+    }
+    .muted{ color: var(--w95-muted); font-size: 12px; line-height: 1.35; }
+
+    .hr{
+      height:1px;
+      background: var(--w95-shadow);
+      margin: 8px 0;
+    }
+
+    /* table */
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      background:#fff;
+    }
+    thead th{
+      background: var(--w95-face);
+      font-size:11px;
+      font-weight:700;
+      text-align:left;
+      padding: 4px 6px;
+      border-bottom: 1px solid var(--w95-shadow);
+    }
+    tbody td{
+      font-size:12px;
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e5e5;
+      vertical-align: top;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 3px 8px;
+      background: #fff;
+      font-size:12px;
+    }
+    .chip.inset{ }
+    .chip strong{ font-weight:700; }
+
+    .progress{
+      height: 14px;
+      background: #fff;
+      position:relative;
+    }
+    .progress.inset{ }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: var(--w95-select);
+    }
+
+    .warnbox, .goodbox, .badbox{
+      padding: 8px;
+      background:#fff;
+      font-size:12px;
+    }
+
+    /* Status bar */
+    .statusbar{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      padding: 4px 6px;
+      background: var(--w95-face);
+      border-top: 1px solid var(--w95-shadow);
+      align-items:center;
+      font-size:12px;
+    }
+    .status-left{ display:flex; gap:8px; align-items:center; }
+    .dot{
+      width:10px; height:10px;
+      background:#00aa00;
+      display:inline-block;
+    }
+    .dot.warn{ background:#d0a000; }
+    .dot.bad{ background:#aa0000; }
+
+    /* ===== Mobile / Smartphone Layout ===== */
+    /* Aktiv über Switch oder automatisch bei kleiner Breite */
+    body.mobile .content{ grid-template-columns: 1fr; }
+
+    /* Nav als Drawer */
+    body.mobile nav{
+      position: fixed;
+      top: 54px;
+      left: 12px;
+      right: 12px;
+      max-width: 560px;
+      z-index: 2001;
+      display: none;
+    }
+    body.mobile nav.open{ display:block; }
+
+    /* Backdrop, damit man das Menü wieder schließen kann */
+    .nav-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.25);
+      display: none;
+      z-index: 2000;
+    }
+
+    /* Größere Touch-Ziele */
+    body.mobile .navbtn{ padding: 10px 10px; font-size: 14px; }
+    body.mobile .btn{ padding: 8px 12px; font-size: 14px; }
+    body.mobile input,
+    body.mobile textarea,
+    body.mobile select{ font-size: 16px; }
+
+    /* Nav Toggle nur in Smartphone-Layout sichtbar */
+    .navtoggle{ display:none; }
+    body.mobile .navtoggle{ display:grid; }
+
+    /* Titlebar sticky, damit Menü-Button erreichbar bleibt */
+    body.mobile .titlebar{ position: sticky; top: 0; z-index: 1500; }
+
+    /* Statusbar rechts */
+    .status-right{ display:flex; align-items:center; gap:10px; }
+    .status-switch{ display:flex; align-items:center; gap:6px; color: var(--w95-muted); }
+    .status-sep{ color: var(--w95-muted); }
+    .status-clock{ color: var(--w95-muted); white-space:nowrap; }
+
+    /* Print */
+    @media print{
+      nav, .menubar, .titlebar, #navBackdrop, #navToggle, #layoutSwitch { display:none !important; }
+      body{ background:#fff; }
+      .desktop{ padding:0; }
+      .window{ width:100%; margin:0; }
+      .content{ display:block; padding:0; }
+      main{ padding:0; }
+      .section{ display:block !important; }
+    }
+  
+
+    /* Prevent horizontal overflow in grids */
+    nav, main, .card, .split, .twoCols, .panel, .content{ min-width:0; }
+
+    /* Tables: keep inside cards, allow horizontal scroll inside wrapper */
+    table{ table-layout: fixed; }
+    th, td{ overflow:hidden; text-overflow:ellipsis; }
+    table input, table select, table textarea{ width:100%; min-width:0; }
+    table input[type=checkbox]{ width:auto; }
+
+    /* Checkbox lines */
+    .checkline{ display:flex; align-items:center; gap:8px; margin:2px 0; }
+    .checkline input{ margin:0; }
+
+    /* Menu popups */
+    .menubar{ position:relative; }
+    .menu-popup{
+      position:absolute;
+      top: 24px;
+      background: var(--w95-face);
+      padding: 2px;
+      display:none;
+      min-width: 210px;
+      z-index: 2500;
+    }
+    .menu-popup.open{ display:block; }
+    .menu-entry{
+      padding: 4px 10px 4px 22px;
+      cursor: default;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    .menu-entry:hover{ background: var(--w95-select); color: var(--w95-selectText); }
+    .menu-sep{ height:1px; background: var(--w95-shadow); margin:2px 0; }
+
+    /* Invitation (PDF-like) preview */
+    .invite-page{
+      font-family: Tahoma, Arial, sans-serif;
+      color:#000;
+      line-height:1.35;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .invite-head{ margin-bottom: 10px; }
+    .invite-head img{ width:100%; height:auto; display:block; }
+    .invite-title{ font-size: 22px; font-weight:700; margin: 14px 0 10px; }
+    .invite-kv{ display:grid; grid-template-columns: 120px 1fr; gap: 6px 12px; font-size: 14px; }
+    .invite-kv .k{ font-weight:700; }
+    .invite-par{ margin: 10px 0; font-size: 14px; }
+    .invite-section-title{ font-weight:700; margin-top: 14px; font-size: 14px; }
+    .invite-list{ margin: 6px 0 0 0; padding-left: 18px; font-size: 14px; }
+    .invite-footer{ display:flex; justify-content:space-between; gap: 14px; margin-top: 16px; align-items:flex-start; }
+    .invite-qr{ width: 170px; text-align:center; font-size: 12px; }
+    .invite-qr img{ width: 160px; height: 160px; image-rendering: pixelated; border: 1px solid #000; background:#fff; }
+    .invite-qr .small{ font-size: 11px; color:#000; margin-top: 6px; word-break: break-all; }
+    .invite-small{ font-size: 11px; margin-top: 18px; }
+    .invite-consent{ margin-top: 18px; font-size: 12px; }
+    .line{ border-bottom: 1px solid #000; height: 18px; }
+    .consent-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+
+
+  </style>
 </head>
 
 <body>
+  <div class="desktop">
+    <div class="window outset bevel">
+      <div class="titlebar">
+        <div class="title-left">
+          <div class="app-icon" aria-hidden="true"></div>
+          <div>Jugendfreizeit-OS - Vereinsausflug Planer</div>
+        </div>
+        <div class="win-controls">
+          <button class="winbtn outset bevel navtoggle" id="navToggle" type="button" title="Menü">☰</button>
+        </div>
+      </div>
+
+      <div class="menubar">
+        <div class="menuitem" data-menu="file">Datei</div>
+        <div class="menuitem" data-menu="edit">Bearbeiten</div>
+        <div class="menuitem" data-menu="view">Ansicht</div>
+        <div class="menuitem" data-menu="help">Hilfe</div>
+
+        <!-- Popups -->
+        <div class="menu-popup outset bevel" id="menu-file" role="menu" aria-label="Datei Menü">
+          <div class="menu-entry" data-act="printInvite">Einladung als PDF drucken…</div>
+          <div class="menu-entry" data-act="saveInviteHtml">Einladung als HTML speichern</div>
+          <div class="menu-entry" data-act="saveIcs">Kalenderdatei (ICS) speichern</div>
+          <div class="menu-sep"></div>
+          <div class="menu-entry" data-act="exportJson">Export JSON (Backup)</div>
+          <div class="menu-entry" data-act="importJson">Import JSON…</div>
+          <div class="menu-sep"></div>
+          <div class="menu-entry" data-act="wipe">Lokale Daten löschen…</div>
+        </div>
+
+        <div class="menu-popup outset bevel" id="menu-edit" role="menu" aria-label="Bearbeiten Menü">
+          <div class="menu-entry" data-act="sample">Beispiel laden (22+5)</div>
+          <div class="menu-entry" data-act="reset">Neuer Plan (Reset)…</div>
+          <div class="menu-sep"></div>
+          <div class="menu-entry" data-act="assign">Auto-Zuweisung jetzt</div>
+        </div>
+
+        <div class="menu-popup outset bevel" id="menu-view" role="menu" aria-label="Ansicht Menü">
+          <div class="menu-entry" data-act="toggleMobile">Smartphone-Layout umschalten</div>
+          <div class="menu-entry" data-act="openNav">Navigation anzeigen</div>
+        </div>
+
+        <div class="menu-popup outset bevel" id="menu-help" role="menu" aria-label="Hilfe Menü">
+          <div class="menu-entry" data-act="about">Kurzanleitung</div>
+          <div class="menu-entry" data-act="privacy">Datenschutz (offline)</div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- LEFT NAV -->
+        <nav class="outset bevel">
+          <div class="groupbox outset bevel">
+            <div class="legend">Navigation</div>
+
+            <button class="navbtn outset bevel active" data-tab="dashboard">
+              <div class="navleft">
+                <div class="navtitle">Dashboard</div>
+                <div class="navdesc">Überblick</div>
+              </div>
+              <span class="kbd">1</span>
+            </button>
+
+            <button class="navbtn outset bevel" data-tab="event">
+              <div class="navleft">
+                <div class="navtitle">Eventdaten</div>
+                <div class="navdesc">Datum, Ort, Kosten</div>
+              </div>
+              <span class="kbd">2</span>
+            </button>
+
+            <button class="navbtn outset bevel" data-tab="people">
+              <div class="navleft">
+                <div class="navtitle">Teilnehmer</div>
+                <div class="navdesc">Kinder & Betreuer</div>
+              </div>
+              <span class="kbd">3</span>
+            </button>
+
+            <button class="navbtn outset bevel" data-tab="transport">
+              <div class="navleft">
+                <div class="navtitle">Auto-Aufteilung</div>
+                <div class="navdesc">PKW Plätze zuweisen</div>
+              </div>
+              <span class="kbd">4</span>
+            </button>
+
+            <button class="navbtn outset bevel" data-tab="invitation">
+              <div class="navleft">
+                <div class="navtitle">Einladung</div>
+                <div class="navdesc">Text, Druck, ICS</div>
+              </div>
+              <span class="kbd">5</span>
+            </button>
+
+            <button class="navbtn outset bevel" data-tab="steps">
+              <div class="navleft">
+                <div class="navtitle">Step-by-Step</div>
+                <div class="navdesc">Aufgabenliste</div>
+              </div>
+              <span class="kbd">6</span>
+            </button>
+
+            <button class="navbtn outset bevel" data-tab="files">
+              <div class="navleft">
+                <div class="navtitle">Import/Export</div>
+                <div class="navdesc">JSON/CSV</div>
+              </div>
+              <span class="kbd">7</span>
+            </button>
+
+            <div class="hr"></div>
+
+            <button class="btn outset bevel block" id="btnSample">Beispiel laden (22+5)</button>
+            <div style="height:6px"></div>
+            <button class="btn outset bevel block" id="btnNew">Neuer Plan (Reset)</button>
+          </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="outset bevel">
+          <div class="panel">
+            <!-- DASHBOARD -->
+            <section class="section active" id="tab-dashboard">
+              <h2>Dashboard</h2>
+
+              <div class="card outset bevel">
+                <h3>Überblick</h3>
+                <div class="row">
+                  <span class="chip inset bevel"><strong id="statKids">0</strong> Kinder</span>
+                  <span class="chip inset bevel"><strong id="statSup">0</strong> Betreuer</span>
+                  <span class="chip inset bevel"><strong id="statDrivers">0</strong> Fahrer</span>
+                  <span class="chip inset bevel"><strong id="statSeats">0</strong> Sitze gesamt</span>
+                </div>
+
+                <div class="hr"></div>
+
+                <div class="row">
+                  <button class="btn outset bevel small" id="goTransport">Auto-Aufteilung öffnen</button>
+                  <button class="btn outset bevel small" id="goInvite">Einladung öffnen</button>
+                  <button class="btn outset bevel small" id="doAssign">Jetzt auto-zuweisen</button>
+                </div>
+
+                <div class="hr"></div>
+
+                <h3>Planungsfortschritt</h3>
+                <div class="progress inset bevel"><div id="progBar"></div></div>
+                <div style="margin-top:6px;font-size:12px;" id="progText">0/0 Aufgaben erledigt</div>
+              </div>
+
+              <div style="height:8px"></div>
+
+              <div class="card outset bevel">
+                <h3>Event-Kurzinfo</h3>
+                <div class="muted" id="eventSummary">Noch keine Eventdaten eingetragen.</div>
+                <div class="hr"></div>
+                <div class="warnbox inset bevel" id="capacityBox" style="display:none;"></div>
+                <div class="goodbox inset bevel" id="capacityOk" style="display:none;"></div>
+              </div>
+            </section>
+
+            <!-- EVENT -->
+            <section class="section" id="tab-event">
+              <h2>Eventdaten</h2>
+
+              <div class="split">
+                <div class="card outset bevel">
+                  <h3>Basis</h3>
+                  <div class="row">
+                    <div style="flex:1; min-width:240px;">
+                      <label>Titel</label>
+                      <input class="inset bevel" id="evTitle" placeholder="z.B. Kletterpark-Ausflug" />
+                    </div>
+                    <div style="width:170px;">
+                      <label>Datum</label>
+                      <input class="inset bevel" id="evDate" type="date" />
+                    </div>
+                    <div style="width:150px;">
+                      <label>Start</label>
+                      <input class="inset bevel" id="evStart" type="time" />
+                    </div>
+                    <div style="width:150px;">
+                      <label>Ende</label>
+                      <input class="inset bevel" id="evEnd" type="time" />
+                    </div>
+                  </div>
+
+                  <div style="height:8px"></div>
+
+                  <div class="row">
+                    <div style="flex:1; min-width:240px;">
+                      <label>Ort / Adresse</label>
+                      <input class="inset bevel" id="evLocation" placeholder="Adresse, Stadt" />
+                    </div>
+                    <div style="flex:1; min-width:240px;">
+                      <label>Treffpunkt / Abfahrt</label>
+                      <input class="inset bevel" id="evMeet" placeholder="z.B. Vereinsheim Parkplatz, 08:15" />
+                    </div>
+                  </div>
+
+                  <div style="height:8px"></div>
+
+                  <div class="row">
+                    <div style="flex:1; min-width:240px;">
+                      <label>Für wen? (Zielgruppe)</label>
+                      <input class="inset bevel" id="evForWho" placeholder="z.B. alle ab 8 Jahren / ab 14 Jahren" />
+                    </div>
+                  </div>
+
+                  <div style="height:8px"></div>
+
+                  <div class="row">
+                    <div style="width:170px;">
+                      <label>Kosten pro Kind (€)</label>
+                      <input class="inset bevel" id="evCost" type="number" min="0" step="0.5" placeholder="0" />
+                    </div>
+                    <div style="flex:1; min-width:240px;">
+                      <label>Kontakt (Name + Tel)</label>
+                      <input class="inset bevel" id="evContact" placeholder="z.B. Lennard – 0151..." />
+                    </div>
+                    <div style="width:210px;">
+                      <label>Anmeldeschluss</label>
+                      <input class="inset bevel" id="evRsvpDeadline" type="date" />
+                    </div>
+                  </div>
+
+                  <div style="height:8px"></div>
+
+                  <div class="row">
+                    <div style="flex:1; min-width:240px;">
+                      <label>Anmeldelink (optional)</label>
+                      <input class="inset bevel" id="evSignupLink" placeholder="z.B. https://forms.gle/..." />
+                    </div>
+                    <div style="width:190px;">
+                      <label>QR-Code</label>
+                      <div class="inset bevel" id="evQrBox" style="background:#fff; padding:6px; height:170px; display:grid; place-items:center;">—</div>
+                    </div>
+                  </div>
+
+                  <div class="hr"></div>
+
+                  <div class="row">
+                    <div style="flex:1; min-width:220px;">
+                      <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" id="invIncludeConsent"> Unterschriftsabschnitt (Einverständnis) unten</label>
+                      <label style="display:flex; align-items:center; gap:8px; margin-top:4px;"><input type="checkbox" id="invNeedSwim"> Text „kann schwimmen“ bestätigen</label>
+                      <label style="display:flex; align-items:center; gap:8px; margin-top:4px;"><input type="checkbox" id="invIncludePhotoNote" checked> Fotohinweis unten (Homepage/Ortspresse)</label>
+                    </div>
+                    <div style="width:190px;">
+                      <label>QR-Code</label>
+                      <div class="inset bevel" id="invQrBox" style="background:#fff; padding:6px; height:170px; display:grid; place-items:center;">—</div>
+                    </div>
+                  </div>
+
+                  <div style="height:8px"></div>
+                  <label>Einverständnis-Text (optional)</label>
+                  <textarea class="inset bevel" id="invConsentText" placeholder="Optionaler Zusatztext (z.B. Datenschutz, Schwimmen, Risiken, ...)"></textarea>
+
+                  <div class="row">
+                    <button class="btn outset bevel" id="btnSaveEvent">Speichern</button>
+                    <button class="btn outset bevel" id="btnToInvite">Direkt zur Einladung</button>
+                  </div>
+                </div>
+
+                <div class="card outset bevel">
+                  <h3>Mitbringen & Hinweise</h3>
+                  <label>Mitbringen (Liste)</label>
+                  <textarea class="inset bevel" id="evBring" placeholder="• Sportsachen&#10;• Trinkflasche&#10;• Wetterfeste Kleidung"></textarea>
+
+                  <div style="height:8px"></div>
+
+                  <label>Programm / Ablauf (optional)</label>
+                  <textarea class="inset bevel" id="evProgram" placeholder="Kurzer Ablauf / was machen wir?"></textarea>
+
+                  <div style="height:8px"></div>
+
+                  <label>Hinweise</label>
+                  <textarea class="inset bevel" id="evNotes" placeholder="Notfallnummer, Allergien melden, ..."></textarea>
+                </div>
+              </div>
+            </section>
+
+            <!-- PEOPLE -->
+            <section class="section" id="tab-people">
+              <h2>Teilnehmer & Betreuer</h2>
+
+              <div class="split">
+                <div class="card outset bevel">
+                  <h3>Kinder</h3>
+                  <div class="row">
+                    <button class="btn outset bevel small" id="addKid">+ Kind hinzufügen</button>
+                    <button class="btn outset bevel small" id="pasteKids">Liste einfügen…</button>
+                  </div>
+                  <div class="hr"></div>
+                  <div class="inset bevel" style="background:#fff; padding:6px; overflow:auto;">
+                    <table id="kidsTable" aria-label="Kinder Tabelle">
+                      <thead>
+                        <tr>
+                          <th style="width:240px;">Name</th>
+                          <th style="width:150px;">Gruppe</th>
+                          <th>Notizen</th>
+                          <th style="width:90px;">Aktion</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="card outset bevel">
+                  <h3>Betreuer (inkl. Fahrer/Autos)</h3>
+                  <div class="muted">
+                    Sitzplätze = Gesamtplätze im Auto. Es wird automatisch <b>1 Platz für den Fahrer</b> abgezogen.
+                  </div>
+                  <div class="row" style="margin-top:6px;">
+                    <button class="btn outset bevel small" id="addSup">+ Betreuer hinzufügen</button>
+                    <button class="btn outset bevel small" id="pasteSup">Liste einfügen…</button>
+                    <button class="btn outset bevel small" id="btnToTransport">Weiter: Auto-Aufteilung</button>
+                  </div>
+                  <div class="hr"></div>
+                  <div class="inset bevel" style="background:#fff; padding:6px; overflow:auto;">
+                    <table id="supTable" aria-label="Betreuer Tabelle">
+                      <thead>
+                        <tr>
+                          <th style="width:220px;">Name</th>
+                          <th style="width:90px;">Fährt?</th>
+                          <th style="width:160px;">Auto</th>
+                          <th style="width:110px;">Sitze</th>
+                          <th>Telefon</th>
+                          <th style="width:90px;">Aktion</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div style="height:8px"></div>
+
+              <div class="card outset bevel">
+                <h3>Quick-Import (Copy/Paste)</h3>
+                <div class="split">
+                  <div>
+                    <label>Kinderliste (1 Name pro Zeile) – optional „;Gruppe“</label>
+                    <textarea class="inset bevel" id="kidsPasteArea" placeholder="Max Mustermann;Team Blau&#10;Erika Beispiel;Team Rot"></textarea>
+                    <div class="row" style="margin-top:6px;">
+                      <button class="btn outset bevel small" id="btnImportKids">Kinder importieren</button>
+                      <button class="btn outset bevel small" id="btnClearKidsPaste">Leeren</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Betreuerliste – optional „;fährt;AutoName;Sitze;Tel“</label>
+                    <textarea class="inset bevel" id="supPasteArea" placeholder="Anna;fährt;Van A;7;0151...&#10;Tom;nein;;;0176..."></textarea>
+                    <div class="row" style="margin-top:6px;">
+                      <button class="btn outset bevel small" id="btnImportSup">Betreuer importieren</button>
+                      <button class="btn outset bevel small" id="btnClearSupPaste">Leeren</button>
+                    </div>
+                    <div class="muted" style="margin-top:6px;">„fährt“: ja / true / fährt / faehrt / yes</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- TRANSPORT -->
+            <section class="section" id="tab-transport">
+              <h2>Auto-Aufteilung (PKW)</h2>
+
+              <div class="twoCols">
+                <div class="card outset bevel">
+                  <h3>Optionen</h3>
+                  <div class="card inset bevel" style="background:#fff;">
+                    <label><input type="checkbox" id="optSupFirst" /> Betreuer (nicht Fahrer) zuerst zuteilen</label>
+                    <label><input type="checkbox" id="optKeepGroups" /> Gruppen möglichst zusammen lassen</label>
+                    <label><input type="checkbox" id="optShuffle" /> Zufällige Verteilung (mischen)</label>
+                  </div>
+
+                  <div class="hr"></div>
+
+                  <div class="row">
+                    <button class="btn outset bevel" id="btnAssign">Auto zuweisen</button>
+                    <button class="btn outset bevel" id="btnReshuffle">Neu mischen</button>
+                    <button class="btn outset bevel small" id="btnExportTransportCsv">Export CSV</button>
+                    <button class="btn outset bevel small" id="btnPrintTransport">Drucken</button>
+                  </div>
+
+                  <div class="hr"></div>
+                  <div id="transportCapacity"></div>
+                </div>
+
+                <div class="card outset bevel">
+                  <h3>Ergebnis</h3>
+                  <div id="transportResult"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- INVITATION -->
+            <section class="section" id="tab-invitation">
+              <h2>Einladung erstellen</h2>
+
+              <div class="twoCols">
+                <div class="card outset bevel">
+                  <h3>Einstellungen</h3>
+                  <div class="row">
+                    <div style="flex:1; min-width:220px;">
+                      <label>Stil</label>
+                      <select class="inset bevel" id="invTone">
+                        <option value="friendly">Freundlich / modern</option>
+                        <option value="formal">Formell</option>
+                        <option value="short">Kurz & knackig</option>
+                      </select>
+                    </div>
+                    <div style="flex:1; min-width:220px;">
+                      <label>Ansprache</label>
+                      <select class="inset bevel" id="invAudience">
+                        <option value="parents">Eltern</option>
+                        <option value="youth">Teilnehmende (Teenies)</option>
+                        <option value="mixed">Beides (Eltern + Teilnehmende)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="hr"></div>
+
+                  <div class="row">
+                    <div style="flex:1; min-width:220px;">
+                      <label class="checkline"><input type="checkbox" id="invIncludeConsent"> Unterschriftsabschnitt (Einverständnis)</label>
+                      <label class="checkline"><input type="checkbox" id="invNeedSwim"> Zusatz: „kann schwimmen“</label>
+                      <label class="checkline"><input type="checkbox" id="invIncludePhotoNote" checked> Fotohinweis unten</label>
+                    </div>
+                    <div style="width:190px;">
+                      <label>QR-Code</label>
+                      <div class="inset bevel" id="invQrBox" style="background:#fff; padding:6px; height:170px; display:grid; place-items:center;">—</div>
+                    </div>
+                  </div>
+
+                  <label>Einverständnis-Text (optional)</label>
+                  <textarea class="inset bevel" id="invConsentText" placeholder="Optionaler Zusatztext für den Unterschrifts-Abschnitt"></textarea>
+
+                  <div class="hr"></div>
+
+                  <div class="row">
+                    <button class="btn outset bevel" id="btnGenInvite">Einladung generieren</button>
+                    <button class="btn outset bevel" id="btnCopyInvite">Text kopieren</button>
+                    <button class="btn outset bevel" id="btnPrintInvitePdf">PDF erzeugen…</button>
+                    <button class="btn outset bevel small" id="btnDownloadInviteHtml">HTML speichern</button>
+                    <button class="btn outset bevel small" id="btnDownloadICS">ICS speichern</button>
+                  </div>
+                </div>
+
+                <div class="card outset bevel">
+                  <h3>Vorschau (PDF-Layout)</h3>
+                  <div class="inset bevel" style="background:#fff; padding:12px; overflow:auto;" id="invitePagePreview"></div>
+                  <div class="hr"></div>
+                  <div class="muted">Tipp: Für eine echte PDF einfach „PDF erzeugen…“ klicken und im Druckdialog „Als PDF speichern“ wählen.</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- STEPS -->
+            <section class="section" id="tab-steps">
+              <h2>Step-by-Step-Planung</h2>
+
+              <div class="split">
+                <div class="card outset bevel">
+                  <h3>Aufgaben</h3>
+                  <div class="row">
+                    <button class="btn outset bevel small" id="addTask">+ Aufgabe</button>
+                    <button class="btn outset bevel small" id="tplDayTrip">Vorlage: Tagesausflug</button>
+                    <button class="btn outset bevel small" id="tplOvernight">Vorlage: Übernachtung</button>
+                    <button class="btn outset bevel small" id="btnExportTasksCsv">Export CSV</button>
+                  </div>
+
+                  <div class="hr"></div>
+
+                  <h3>Fortschritt</h3>
+                  <div class="progress inset bevel"><div id="progBar2"></div></div>
+                  <div style="margin-top:6px;font-size:12px;" id="progText2">0/0 erledigt</div>
+
+                  <div class="hr"></div>
+
+                  <div class="inset bevel" style="background:#fff; padding:6px; overflow:auto;">
+                    <table id="tasksTable" aria-label="Aufgaben Tabelle">
+                      <thead>
+                        <tr>
+                          <th style="width:260px;">Aufgabe</th>
+                          <th style="width:140px;">Fällig</th>
+                          <th style="width:180px;">Verantwortlich</th>
+                          <th style="width:140px;">Status</th>
+                          <th>Notizen</th>
+                          <th style="width:90px;">Aktion</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="card outset bevel">
+                  <h3>Mini-Guide</h3>
+                  <div class="muted">
+                    1) Rahmen klären (Ziel, Datum, Budget)<br>
+                    2) Kommunikation (Einladung, Anmeldeschluss)<br>
+                    3) Logistik (Transport, Treffpunkt, Zeitplan)<br>
+                    4) Sicherheit (Einverständnisse, Allergien, Notfallkontakt)<br>
+                    5) Abschluss (Abrechnung, Feedback)
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- FILES -->
+            <section class="section" id="tab-files">
+              <h2>Import / Export</h2>
+
+              <div class="split">
+                <div class="card outset bevel">
+                  <h3>Backup (JSON)</h3>
+                  <div class="row">
+                    <button class="btn outset bevel" id="btnExportJSON">Export JSON</button>
+
+                    <label class="btn outset bevel" style="display:inline-flex; align-items:center; gap:8px;">
+                      JSON importieren
+                      <input type="file" id="fileImportJSON" accept="application/json" style="display:none;">
+                    </label>
+                  </div>
+
+                  <div class="hr"></div>
+                  <div class="badbox inset bevel">
+                    Achtung: „Neuer Plan (Reset)“ bzw. „Lokale Daten löschen“ entfernt alles nur in diesem Browser.
+                  </div>
+                </div>
+
+                <div class="card outset bevel">
+                  <h3>Datenschutz</h3>
+                  <div class="muted">
+                    Läuft komplett offline. Daten bleiben im Browser (localStorage).
+                  </div>
+                  <div class="hr"></div>
+                  <button class="btn outset bevel" id="btnWipe">Lokale Daten löschen</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+
+      <div class="statusbar">
+        <div class="status-left">
+          <span id="saveDot" class="dot"></span>
+          <span id="saveText">Gespeichert</span>
+          <span style="color:var(--w95-muted);">|</span>
+          <span style="color:var(--w95-muted);">Strg+S</span>
+        </div>
+        <div class="status-right">
+          <label class="status-switch"><input type="checkbox" id="layoutSwitch" /> Smartphone</label>
+          <span class="status-sep">|</span>
+          <span id="clock" class="status-clock">--:--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile nav backdrop (nur aktiv im Smartphone-Layout) -->
+  <div id="navBackdrop" class="nav-backdrop" aria-hidden="true"></div>
 
 <script>
-    // Liste wilder Emojis
-    const emojis = ["🔥","💥","⚡","🌪️","🐄","🦄","👾","🤖","💣","🌈","🍕","🚀","🐉","💫","🎉","🌀"];
+(() => {
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const STORAGE_KEY = "vereinsausflug_planner_v1";
+  const JSC_HEADER_DATAURI = "data:image/png;base64,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";
 
-    // Anzahl der Emojis (kannst du hochdrehen)
-    const emojiCount = 80; // 150 geht auch, wenn du mutig bist
+  function uid(){
+    const a = new Uint32Array(2);
+    crypto.getRandomValues(a);
+    return a[0].toString(16) + a[1].toString(16);
+  }
+  function escapeCsv(v){
+    const s = (v ?? "").toString();
+    if (/[",\n;]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  }
+  function download(filename, content, mime="text/plain;charset=utf-8"){
+    const blob = new Blob([content], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  }
+  function fmtDate(d){
+    if(!d) return "—";
+    try{
+      const [y,m,dd] = d.split("-").map(Number);
+      return new Date(y, m-1, dd).toLocaleDateString("de-DE", {weekday:"long", year:"numeric", month:"long", day:"2-digit"});
+    }catch{ return d; }
+  }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function icsDateTime(dateStr, timeStr){
+    if(!dateStr || !timeStr) return "";
+    const [y,m,d] = dateStr.split("-").map(Number);
+    const [hh,mm] = timeStr.split(":").map(Number);
+    return `${y}${pad2(m)}${pad2(d)}T${pad2(hh)}${pad2(mm)}00`;
+  }
 
-    for (let i = 0; i < emojiCount; i++) {
-        const el = document.createElement("div");
-        el.className = "emoji";
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  function setSaveState(kind, text){
+    const dot = $("#saveDot");
+    const t = $("#saveText");
+    dot.classList.remove("warn","bad");
+    if(kind === "warn") dot.classList.add("warn");
+    if(kind === "bad") dot.classList.add("bad");
+    t.textContent = text;
+  }
 
-        // Zufällige Startposition
-        el.style.top = Math.random() * 100 + "vh";
-        el.style.left = Math.random() * 100 + "vw";
-
-        // Zufällige Größe
-        el.style.fontSize = (1 + Math.random() * 3) + "rem";
-
-        // Zufällige Geschwindigkeit
-        const speed = 3 + Math.random() * 8;
-        el.style.animationDuration = speed + "s, " + (1 + Math.random() * 3) + "s";
-
-        document.body.appendChild(el);
+  const defaultState = () => ({
+    event: {
+      title: "",
+      date: "",
+      start: "",
+      end: "",
+      location: "",
+      meet: "",
+      cost: "",
+      contact: "",
+      rsvpDeadline: "",
+      signupLink: "",
+      bring: "• Trinkflasche\n• Wetterfeste Kleidung\n• Kleines Vesper",
+      notes: ""
+    },
+    children: [],
+    supervisors: [],
+    tasks: [],
+    transport: {
+      options: { supFirst:true, keepGroups:true, shuffle:true },
+      lastSeed: null,
+      lastAssignment: null
     }
-</script>
+  });
 
+  let state = loadState();
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      const obj = JSON.parse(raw);
+      return { ...defaultState(), ...obj };
+    }catch(e){
+      return defaultState();
+    }
+  }
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    setSaveState("good", "Gespeichert");
+    refreshDashboard();
+  }
+  let saveTimer = null;
+  function scheduleSave(){
+    setSaveState("warn", "Ungespeichert…");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveState, 250);
+  }
+
+  // Clock
+  function tickClock(){
+    const d = new Date();
+    const hh = pad2(d.getHours());
+    const mm = pad2(d.getMinutes());
+    const c = $("#clock");
+    if(c) c.textContent = `${hh}:${mm}`;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // Ctrl+S and quick nav
+  document.addEventListener("keydown", (e) => {
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s"){
+      e.preventDefault();
+      saveState();
+    }
+    const k = e.key;
+    if(["1","2","3","4","5","6","7"].includes(k) && !e.altKey && !e.ctrlKey && !e.metaKey){
+      const map = {"1":"dashboard","2":"event","3":"people","4":"transport","5":"invitation","6":"steps","7":"files"};
+      switchTab(map[k]);
+    }
+    if(k === "Escape") closeNav();
+  });
+
+  // Mobile nav drawer + Smartphone Layout
+  const LAYOUT_KEY = "vereinsausflug_layout_mobile_v1";
+  const nav = document.querySelector("nav");
+  const navToggle = $("#navToggle");
+  const navBackdrop = $("#navBackdrop");
+  const layoutSwitch = $("#layoutSwitch");
+
+  function openNav(){
+    if(!nav) return;
+    nav.classList.add("open");
+    document.body.classList.add("nav-open");
+    if(navBackdrop) navBackdrop.style.display = "block";
+  }
+  function closeNav(){
+    if(!nav) return;
+    nav.classList.remove("open");
+    document.body.classList.remove("nav-open");
+    if(navBackdrop) navBackdrop.style.display = "none";
+  }
+
+  if(navToggle){
+    navToggle.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      if(nav && nav.classList.contains("open")) closeNav();
+      else openNav();
+    });
+  }
+  if(navBackdrop){
+    navBackdrop.addEventListener("click", closeNav);
+  }
+
+  let layoutManual = false;
+  function setMobileMode(enabled, persist=true){
+    document.body.classList.toggle("mobile", !!enabled);
+    if(layoutSwitch) layoutSwitch.checked = !!enabled;
+    if(persist){
+      localStorage.setItem(LAYOUT_KEY, enabled ? "1" : "0");
+      layoutManual = true;
+    }
+    // Wenn Mobile aktiv ist, Drawer-Menü standardmäßig zu, damit nichts Klicks blockiert
+    if(!enabled) closeNav();
+  }
+
+  // Init Layout: gespeicherte Präferenz oder Auto
+  try{
+    const saved = localStorage.getItem(LAYOUT_KEY);
+    if(saved === null){
+      setMobileMode(window.matchMedia("(max-width: 760px)").matches, false);
+    }else{
+      layoutManual = true;
+      setMobileMode(saved === "1", false);
+    }
+  }catch{
+    setMobileMode(window.matchMedia("(max-width: 760px)").matches, false);
+  }
+
+  if(layoutSwitch){
+    layoutSwitch.addEventListener("change", ()=> setMobileMode(layoutSwitch.checked, true));
+  }
+
+  window.addEventListener("resize", ()=>{
+    if(layoutManual) return;
+    setMobileMode(window.matchMedia("(max-width: 760px)").matches, false);
+  });
+
+  // Navigation
+  function switchTab(tab){
+    $$(".navbtn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    $$(".section").forEach(s => s.classList.toggle("active", s.id === `tab-${tab}`));
+    if(tab==="transport") renderTransport();
+    if(tab==="invitation") renderInvitationPreview();
+    if(tab==="steps") renderTasks();
+    if(tab==="people"){ renderKids(); renderSup(); }
+    if(tab==="event") renderEventForm();
+    if(tab==="dashboard") refreshDashboard();
+    closeNav();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+  $$(".navbtn").forEach(btn => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+
+  // Menubar actions
+  const menuItems = $$(".menuitem[data-menu]");
+  const popups = {
+    file: $("#menu-file"),
+    edit: $("#menu-edit"),
+    view: $("#menu-view"),
+    help: $("#menu-help")
+  };
+
+  function closeMenus(){
+    Object.values(popups).forEach(p=>p && p.classList.remove("open"));
+  }
+
+  function openMenu(key, anchor){
+    closeMenus();
+    const p = popups[key];
+    if(!p) return;
+    const left = anchor.offsetLeft;
+    p.style.left = left + "px";
+    p.classList.add("open");
+  }
+
+  menuItems.forEach(mi=>{
+    mi.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const key = mi.dataset.menu;
+      const p = popups[key];
+      if(p && p.classList.contains("open")) closeMenus();
+      else openMenu(key, mi);
+    });
+  });
+
+  document.addEventListener("click", closeMenus);
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeMenus();
+    if(e.altKey){
+      const k = e.key.toLowerCase();
+      if(k==='f'){ e.preventDefault(); openMenu('file', $(".menuitem[data-menu='file']")); }
+      if(k==='b'){ e.preventDefault(); openMenu('edit', $(".menuitem[data-menu='edit']")); }
+      if(k==='a'){ e.preventDefault(); openMenu('view', $(".menuitem[data-menu='view']")); }
+      if(k==='h'){ e.preventDefault(); openMenu('help', $(".menuitem[data-menu='help']")); }
+    }
+  });
+
+  $$(".menu-popup .menu-entry").forEach(en=>{
+    en.addEventListener("click", ()=>{
+      const act = en.dataset.act;
+      closeMenus();
+      if(act === 'printInvite') { switchTab('invitation'); renderInvitationPreview(); printInvitationPdf(); }
+      if(act === 'saveInviteHtml') { $("#btnDownloadInviteHtml")?.click(); }
+      if(act === 'saveIcs') { $("#btnDownloadICS")?.click(); }
+      if(act === 'exportJson') { $("#btnExportJSON")?.click(); }
+      if(act === 'importJson') { $("#fileImportJSON")?.click(); }
+      if(act === 'wipe') { $("#btnWipe")?.click(); }
+      if(act === 'sample') { $("#btnSample")?.click(); }
+      if(act === 'reset') { $("#btnNew")?.click(); }
+      if(act === 'assign') { switchTab('transport'); assignTransport(null); }
+      if(act === 'toggleMobile') { $("#layoutSwitch").checked = !$("#layoutSwitch").checked; $("#layoutSwitch").dispatchEvent(new Event('change')); }
+      if(act === 'openNav') { openNav(); }
+      if(act === 'about') {
+        alert("Kurzanleitung:\n\n1) Eventdaten eintragen (Datum/Ort/Kosten/Anmeldelink).\n2) Kinder & Betreuer hinzufügen.\n3) Auto-Aufteilung erzeugen.\n4) Einladung generieren und als PDF speichern.\n\nTipp: Strg+S speichert lokal im Browser.");
+      }
+      if(act === 'privacy') {
+        alert("Datenschutz:\n\nDieses Tool speichert die Daten nur lokal im Browser (localStorage).\nEs werden keine Daten automatisch an den Verein gesendet.\n\nHinweis: Für QR-Codes wird – falls Internet verfügbar – ein QR-Bild geladen und dann lokal gespeichert.");
+      }
+    });
+  });
+
+
+
+  // Event form
+  function renderEventForm(){
+    const e = state.event;
+    $("#evTitle").value = e.title;
+    $("#evDate").value = e.date;
+    $("#evStart").value = e.start;
+    $("#evEnd").value = e.end;
+    $("#evLocation").value = e.location;
+    $("#evMeet").value = e.meet;
+    $("#evCost").value = e.cost;
+    $("#evContact").value = e.contact;
+    $("#evRsvpDeadline").value = e.rsvpDeadline;
+    $("#evSignupLink").value = e.signupLink;
+    if($("#evForWho")) $("#evForWho").value = e.forWho || "";
+    if($("#evProgram")) $("#evProgram").value = e.program || "";
+    renderEventQr();
+    $("#evBring").value = e.bring;
+    $("#evNotes").value = e.notes;
+  }
+  function readEventForm(){
+    state.event.title = $("#evTitle").value.trim();
+    state.event.date = $("#evDate").value;
+    state.event.start = $("#evStart").value;
+    state.event.end = $("#evEnd").value;
+    state.event.location = $("#evLocation").value.trim();
+    state.event.meet = $("#evMeet").value.trim();
+    state.event.cost = $("#evCost").value;
+    state.event.contact = $("#evContact").value.trim();
+    state.event.rsvpDeadline = $("#evRsvpDeadline").value;
+    state.event.signupLink = $("#evSignupLink").value.trim();
+    if($("#evForWho")) state.event.forWho = $("#evForWho").value.trim();
+    if($("#evProgram")) state.event.program = $("#evProgram").value;
+    scheduleQrUpdate();
+    state.event.bring = $("#evBring").value;
+    state.event.notes = $("#evNotes").value;
+  }
+  ["#evTitle","#evDate","#evStart","#evEnd","#evLocation","#evMeet","#evForWho","#evCost","#evContact","#evRsvpDeadline","#evSignupLink","#evBring","#evProgram","#evNotes"]
+    .forEach(sel => $(sel).addEventListener("input", () => { readEventForm(); scheduleSave(); renderInvitationPreview(); }));
+
+  $("#btnSaveEvent").addEventListener("click", () => { readEventForm(); saveState(); });
+  $("#btnToInvite").addEventListener("click", () => switchTab("invitation"));
+
+  // Kids
+  function renderKids(){
+    const tb = $("#kidsTable tbody");
+    tb.innerHTML = "";
+    state.children.forEach(k => {
+      const tr = document.createElement("tr");
+
+      const tdName = document.createElement("td");
+      const name = document.createElement("input");
+      name.className="inset bevel";
+      name.value = k.name; name.placeholder="Name";
+      name.addEventListener("input", ()=>{ k.name=name.value; scheduleSave(); refreshDashboard(); });
+      tdName.appendChild(name);
+
+      const tdGroup = document.createElement("td");
+      const group = document.createElement("input");
+      group.className="inset bevel";
+      group.value = k.group || ""; group.placeholder="z.B. Team Blau";
+      group.addEventListener("input", ()=>{ k.group=group.value; scheduleSave(); });
+      tdGroup.appendChild(group);
+
+      const tdNotes = document.createElement("td");
+      const notes = document.createElement("input");
+      notes.className="inset bevel";
+      notes.value = k.notes || ""; notes.placeholder="Notizen";
+      notes.addEventListener("input", ()=>{ k.notes=notes.value; scheduleSave(); });
+      tdNotes.appendChild(notes);
+
+      const tdAct = document.createElement("td");
+      const del = document.createElement("button");
+      del.className="btn outset bevel small"; del.textContent="Löschen";
+      del.addEventListener("click", ()=>{ state.children = state.children.filter(x=>x.id!==k.id); scheduleSave(); renderKids(); refreshDashboard(); });
+      tdAct.appendChild(del);
+
+      tr.append(tdName, tdGroup, tdNotes, tdAct);
+      tb.appendChild(tr);
+    });
+  }
+  $("#addKid").addEventListener("click", ()=>{
+    state.children.push({ id:uid(), name:"", group:"", notes:"" });
+    scheduleSave(); renderKids();
+  });
+  function importKidsFromPaste(){
+    const raw = $("#kidsPasteArea").value.trim();
+    if(!raw) return;
+    raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+      const parts = line.split(";").map(s=>s.trim());
+      const name = parts[0] || "";
+      const group = parts[1] || "";
+      if(name){
+        const key = (name+"|"+group).trim().toLowerCase();
+        const exists = state.children.some(k => (k.name+"|"+(k.group||"")).trim().toLowerCase() === key);
+        if(!exists) state.children.push({ id:uid(), name, group, notes:"" });
+      }
+    });
+    scheduleSave(); renderKids(); refreshDashboard();
+  }
+  $("#btnImportKids").addEventListener("click", importKidsFromPaste);
+  $("#btnClearKidsPaste").addEventListener("click", ()=> $("#kidsPasteArea").value="");
+  $("#pasteKids").addEventListener("click", ()=> $("#kidsPasteArea").focus());
+
+  // Supervisors
+  function renderSup(){
+    const tb = $("#supTable tbody");
+    tb.innerHTML = "";
+    state.supervisors.forEach(s => {
+      const tr = document.createElement("tr");
+
+      const tdName = document.createElement("td");
+      const name = document.createElement("input");
+      name.className="inset bevel";
+      name.value = s.name; name.placeholder="Name";
+      name.addEventListener("input", ()=>{ s.name=name.value; scheduleSave(); refreshDashboard(); });
+      tdName.appendChild(name);
+
+      const tdDr = document.createElement("td");
+      const drives = document.createElement("input");
+      drives.type="checkbox"; drives.checked=!!s.drives;
+      drives.addEventListener("change", ()=>{
+        s.drives = drives.checked;
+        if(!s.drives){ s.carName=""; s.carSeats=""; }
+        scheduleSave(); renderSup(); refreshDashboard();
+      });
+      tdDr.appendChild(drives);
+
+      const tdCar = document.createElement("td");
+      const car = document.createElement("input");
+      car.className="inset bevel";
+      car.value = s.carName || ""; car.placeholder="z.B. Van A";
+      car.disabled = !s.drives;
+      car.addEventListener("input", ()=>{ s.carName=car.value; scheduleSave(); refreshDashboard(); });
+      tdCar.appendChild(car);
+
+      const tdSeats = document.createElement("td");
+      const seats = document.createElement("input");
+      seats.className="inset bevel";
+      seats.type="number"; seats.min="1"; seats.step="1";
+      seats.value = s.carSeats ?? "";
+      seats.placeholder="z.B. 5";
+      seats.disabled = !s.drives;
+      seats.addEventListener("input", ()=>{ s.carSeats=seats.value; scheduleSave(); refreshDashboard(); });
+      tdSeats.appendChild(seats);
+
+      const tdPhone = document.createElement("td");
+      const phone = document.createElement("input");
+      phone.className="inset bevel";
+      phone.value = s.phone || ""; phone.placeholder="optional";
+      phone.addEventListener("input", ()=>{ s.phone=phone.value; scheduleSave(); });
+      tdPhone.appendChild(phone);
+
+      const tdAct = document.createElement("td");
+      const del = document.createElement("button");
+      del.className="btn outset bevel small"; del.textContent="Löschen";
+      del.addEventListener("click", ()=>{ state.supervisors = state.supervisors.filter(x=>x.id!==s.id); scheduleSave(); renderSup(); refreshDashboard(); });
+      tdAct.appendChild(del);
+
+      tr.append(tdName, tdDr, tdCar, tdSeats, tdPhone, tdAct);
+      tb.appendChild(tr);
+    });
+  }
+  $("#addSup").addEventListener("click", ()=>{
+    state.supervisors.push({ id:uid(), name:"", drives:false, carName:"", carSeats:"", phone:"" });
+    scheduleSave(); renderSup();
+  });
+  function importSupFromPaste(){
+    const raw = $("#supPasteArea").value.trim();
+    if(!raw) return;
+    raw.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+      const parts = line.split(";").map(s=>s.trim());
+      const name = parts[0] || "";
+      const flag = (parts[1]||"").toLowerCase();
+      const drives = ["ja","true","fährt","faehrt","yes","y"].includes(flag);
+      const carName = parts[2] || "";
+      const carSeats = parts[3] || "";
+      const phone = parts[4] || "";
+      if(name){
+        const key = (name+"|"+(phone||"")).trim().toLowerCase();
+        const exists = state.supervisors.some(s => (s.name+"|"+(s.phone||"")).trim().toLowerCase() === key);
+        if(!exists){
+          state.supervisors.push({ id:uid(), name, drives, carName, carSeats, phone });
+        }
+      }
+    });
+    scheduleSave(); renderSup(); refreshDashboard();
+  }
+  $("#btnImportSup").addEventListener("click", importSupFromPaste);
+  $("#btnClearSupPaste").addEventListener("click", ()=> $("#supPasteArea").value="");
+  $("#pasteSup").addEventListener("click", ()=> $("#supPasteArea").focus());
+  $("#btnToTransport").addEventListener("click", ()=> switchTab("transport"));
+
+  // Transport
+  function computeCapacity(){
+    const kids = state.children.filter(k=>k.name.trim()).length;
+    const supAll = state.supervisors.filter(s=>s.name.trim()).length;
+    const drivers = state.supervisors.filter(s=>s.name.trim() && s.drives && Number(s.carSeats)>=1);
+    let totalSeats = 0;
+    let passengerSeats = 0;
+    drivers.forEach(d=>{
+      const seats = Number(d.carSeats)||0;
+      totalSeats += seats;
+      passengerSeats += Math.max(0, seats - 1);
+    });
+    const passengersToPlace = kids + (supAll - drivers.length);
+    return { kids, supAll, driversCount: drivers.length, totalSeats, passengerSeats, passengersToPlace };
+  }
+  function seededRandom(seed){
+    let s = seed >>> 0;
+    return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+  }
+  function shuffle(arr, rnd){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(rnd()* (i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function escapeHtml(s){
+    return (s ?? "").toString().replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  function makeAssignment(){
+    const opts = state.transport.options;
+    const cap = computeCapacity();
+
+    const drivers = state.supervisors
+      .filter(s=>s.name.trim() && s.drives && Number(s.carSeats)>=1)
+      .map(s=>({
+        id:s.id,
+        driverName:s.name.trim(),
+        carName:(s.carName||"Auto").trim() || "Auto",
+        seats:Number(s.carSeats)||0,
+        remaining: Math.max(0,(Number(s.carSeats)||0)-1),
+        passengers:[]
+      }));
+
+    const nonDriverSup = state.supervisors
+      .filter(s=>s.name.trim() && !(s.drives && Number(s.carSeats)>=1))
+      .map(s=>({ type:"Betreuer", name:s.name.trim(), group:"__SUP__", id:s.id }));
+
+    const kids = state.children
+      .filter(k=>k.name.trim())
+      .map(k=>({ type:"Kind", name:k.name.trim(), group:(k.group||"").trim(), id:k.id }));
+
+    const seed = state.transport.lastSeed ?? (crypto.getRandomValues(new Uint32Array(1))[0] >>> 0);
+    const rnd = seededRandom(seed);
+
+    let pool = opts.supFirst ? nonDriverSup.concat(kids) : kids.concat(nonDriverSup);
+    if(opts.shuffle) pool = shuffle(pool, rnd);
+
+    const keepGroups = !!opts.keepGroups;
+    let chunks = [];
+    if(keepGroups){
+      const grouped = new Map();
+      pool.forEach(p=>{
+        const g = (p.type==="Kind" && p.group) ? ("K:"+p.group) : ("SINGLE:"+p.id);
+        if(!grouped.has(g)) grouped.set(g, []);
+        grouped.get(g).push(p);
+      });
+      chunks = Array.from(grouped.values()).sort((a,b)=>b.length-a.length);
+    }else{
+      chunks = pool.map(p=>[p]);
+    }
+
+    const unplaced = [];
+    chunks.forEach(chunk=>{
+      let best = null;
+      for(const c of drivers){
+        if(c.remaining >= chunk.length){
+          if(!best || c.remaining > best.remaining) best = c;
+        }
+      }
+      if(best){
+        best.passengers.push(...chunk);
+        best.remaining -= chunk.length;
+      }else{
+        if(keepGroups && chunk.length > 1){
+          chunk.forEach(p=>{
+            let target = drivers.slice().sort((a,b)=>b.remaining-a.remaining).find(c=>c.remaining>=1);
+            if(target){
+              target.passengers.push(p);
+              target.remaining -= 1;
+            }else{
+              unplaced.push(p);
+            }
+          });
+        }else{
+          chunk.forEach(p=>unplaced.push(p));
+        }
+      }
+    });
+
+    const placedCount = drivers.reduce((sum,c)=>sum + c.passengers.length, 0);
+    const totalNeed = cap.passengersToPlace;
+    const ok = (unplaced.length===0) && (placedCount===totalNeed);
+
+    return {
+      seed,
+      options: {...opts},
+      capacity: cap,
+      cars: drivers.map(c=>({
+        driverName:c.driverName,
+        carName:c.carName,
+        seats:c.seats,
+        passengerCapacity: Math.max(0,c.seats-1),
+        passengers: c.passengers
+      })),
+      unplaced,
+      ok
+    };
+  }
+
+  function buildTransportHtml(r){
+    const cap = r.capacity;
+    const need = cap.passengersToPlace;
+    const placed = r.cars.reduce((s,c)=>s + c.passengers.length, 0);
+    const missing = Math.max(0, need - placed);
+
+    let headline = "";
+    if(r.ok){
+      headline = `<div class="goodbox inset bevel"><b>OK:</b> Alle ${need} Mitfahrer verteilt. (Seed: ${r.seed})</div>`;
+    }else{
+      const un = r.unplaced.length;
+      if(missing>0){
+        headline = `<div class="badbox inset bevel"><b>Nicht genug Plätze:</b> es fehlen mindestens <b>${missing}</b> Mitfahrer-Plätze. (${un} ohne Platz)</div>`;
+      }else{
+        headline = `<div class="warnbox inset bevel"><b>Teilweise Zuweisung:</b> ${un} ohne Platz. (Seed: ${r.seed})</div>`;
+      }
+    }
+
+    const carsHtml = r.cars.map((c, idx)=>{
+      const occ = c.passengers.length;
+      const chips = occ ? c.passengers.map(p=>{
+        const tag = p.type==="Betreuer" ? "Betreuer" : (p.group ? `Kind · ${p.group}` : "Kind");
+        return `<span class="chip inset bevel"><strong>${escapeHtml(p.name)}</strong> <span style="color:#404040">(${escapeHtml(tag)})</span></span>`;
+      }).join(" ") : `<span style="color:#404040">Keine Mitfahrer.</span>`;
+
+      return `
+        <div class="card outset bevel" style="margin-bottom:8px;">
+          <div style="font-weight:700;">${escapeHtml(c.carName)} (#${idx+1})</div>
+          <div style="color:#404040; font-size:12px;">Fahrer: <b>${escapeHtml(c.driverName)}</b> · Sitze: ${c.seats} (Mitfahrer: ${c.passengerCapacity})</div>
+          <div class="hr"></div>
+          ${chips}
+        </div>
+      `;
+    }).join("");
+
+    const unplacedHtml = r.unplaced.length ? `
+      <div class="card outset bevel">
+        <h3>Ohne Platz</h3>
+        ${r.unplaced.map(p=>`<span class="chip inset bevel"><strong>${escapeHtml(p.name)}</strong> <span style="color:#404040">(${p.type})</span></span>`).join(" ")}
+      </div>
+    ` : "";
+
+    return `${headline}<div class="hr"></div>${carsHtml}${unplacedHtml}`;
+  }
+
+  function renderTransport(){
+    $("#optSupFirst").checked = !!state.transport.options.supFirst;
+    $("#optKeepGroups").checked = !!state.transport.options.keepGroups;
+    $("#optShuffle").checked = !!state.transport.options.shuffle;
+
+    const cap = computeCapacity();
+    $("#transportCapacity").innerHTML = `
+      <div class="row">
+        <span class="chip inset bevel"><strong>${cap.kids}</strong> Kinder</span>
+        <span class="chip inset bevel"><strong>${cap.supAll}</strong> Betreuer</span>
+        <span class="chip inset bevel"><strong>${cap.driversCount}</strong> Fahrer</span>
+        <span class="chip inset bevel"><strong>${cap.totalSeats}</strong> Sitze gesamt</span>
+        <span class="chip inset bevel"><strong>${cap.passengerSeats}</strong> Mitfahrer-Sitze</span>
+        <span class="chip inset bevel"><strong>${cap.passengersToPlace}</strong> zu platzieren</span>
+      </div>
+    `;
+
+    const r = state.transport.lastAssignment;
+    const out = $("#transportResult");
+    if(!r){
+      out.innerHTML = `<div class="warnbox inset bevel">Noch keine Aufteilung. Klicke „Auto zuweisen“.</div>`;
+      return;
+    }
+    out.innerHTML = buildTransportHtml(r);
+  }
+
+  function safeFileName(s){
+    return (s||"plan").toString().trim().toLowerCase().replace(/[^a-z0-9äöüß\-_]+/gi,"_").replace(/_+/g,"_").replace(/^_+|_+$/g,"");
+  }
+
+  function assignTransport(newSeed=null){
+    state.transport.options.supFirst = $("#optSupFirst").checked;
+    state.transport.options.keepGroups = $("#optKeepGroups").checked;
+    state.transport.options.shuffle = $("#optShuffle").checked;
+
+    state.transport.lastSeed = (newSeed ?? (crypto.getRandomValues(new Uint32Array(1))[0]>>>0));
+    const res = makeAssignment();
+    state.transport.lastAssignment = res;
+    scheduleSave();
+    renderTransport();
+    refreshDashboard();
+  }
+
+  $("#optSupFirst").addEventListener("change", ()=>{ state.transport.options.supFirst = $("#optSupFirst").checked; scheduleSave(); });
+  $("#optKeepGroups").addEventListener("change", ()=>{ state.transport.options.keepGroups = $("#optKeepGroups").checked; scheduleSave(); });
+  $("#optShuffle").addEventListener("change", ()=>{ state.transport.options.shuffle = $("#optShuffle").checked; scheduleSave(); });
+
+  $("#btnAssign").addEventListener("click", ()=> assignTransport(null));
+  $("#btnReshuffle").addEventListener("click", ()=> assignTransport(null));
+  $("#doAssign").addEventListener("click", ()=> { switchTab("transport"); assignTransport(null); });
+
+  $("#btnPrintTransport").addEventListener("click", ()=> window.print());
+  $("#btnExportTransportCsv").addEventListener("click", ()=>{
+    if(!state.transport.lastAssignment) assignTransport(null);
+    const r = state.transport.lastAssignment;
+    const rows = [];
+    rows.push(["Auto","Fahrer","Sitze gesamt","Mitfahrer-Kapazität","Mitfahrer"].map(escapeCsv).join(";"));
+    r.cars.forEach(c=>{
+      const passengerNames = c.passengers.map(p=>`${p.name} (${p.type==="Betreuer"?"B":"K"}${p.group?"/"+p.group:""})`).join(", ");
+      rows.push([c.carName, c.driverName, c.seats, c.passengerCapacity, passengerNames].map(escapeCsv).join(";"));
+    });
+    if(r.unplaced.length){
+      rows.push(["OHNE_PLATZ","", "", "", r.unplaced.map(p=>p.name+" ("+p.type+")").join(", ")].map(escapeCsv).join(";"));
+    }
+    download(`transport_${safeFileName(state.event.title||"ausflug")}.csv`, rows.join("\n"), "text/csv;charset=utf-8");
+  });
+
+
+
+  // QR (cached as data URL)
+  const QR_SIZE = 220;
+  let qrTimer = null;
+
+  function renderEventQr(){
+    const box = $("#evQrBox");
+    if(!box) return;
+    box.innerHTML = "";
+    if(state.event.qrDataUrl){
+      const img = document.createElement("img");
+      img.alt = "QR-Code";
+      img.src = state.event.qrDataUrl;
+      img.style.width = "160px";
+      img.style.height = "160px";
+      img.style.imageRendering = "pixelated";
+      box.appendChild(img);
+      return;
+    }
+    box.textContent = state.event.signupLink ? "QR wird geladen…" : "—";
+  }
+
+  function renderInviteQr(){
+    const box = $("#invQrBox");
+    if(!box) return;
+    box.innerHTML = "";
+    if(state.event.qrDataUrl){
+      const img = document.createElement("img");
+      img.alt = "QR-Code";
+      img.src = state.event.qrDataUrl;
+      img.style.width = "160px";
+      img.style.height = "160px";
+      img.style.imageRendering = "pixelated";
+      box.appendChild(img);
+      return;
+    }
+    box.textContent = state.event.signupLink ? "QR wird geladen…" : "—";
+  }
+
+  async function fetchQrDataUrl(link){
+    const url = `https://api.qrserver.com/v1/create-qr-code/?size=${QR_SIZE}x${QR_SIZE}&data=${encodeURIComponent(link)}`;
+    const res = await fetch(url, {cache: "no-store"});
+    if(!res.ok) throw new Error("QR fetch failed");
+    const blob = await res.blob();
+    return await new Promise((resolve, reject)=>{
+      const r = new FileReader();
+      r.onload = ()=>resolve(r.result);
+      r.onerror = ()=>reject(new Error("read failed"));
+      r.readAsDataURL(blob);
+    });
+  }
+
+  function scheduleQrUpdate(){
+    clearTimeout(qrTimer);
+    qrTimer = setTimeout(updateQrNow, 450);
+  }
+
+  async function updateQrNow(){
+    const link = (state.event.signupLink || "").trim();
+    if(!link){
+      state.event.qrDataUrl = "";
+      renderEventQr();
+      renderInviteQr();
+      renderInvitationPreview();
+      scheduleSave();
+      return;
+    }
+    try{
+      setSaveState("warn", "QR-Code wird erzeugt…");
+      const dataUrl = await fetchQrDataUrl(link);
+      state.event.qrDataUrl = dataUrl;
+      saveState();
+      renderEventQr();
+      renderInviteQr();
+      renderInvitationPreview();
+      setSaveState("good", "Gespeichert");
+    }catch(e){
+      // keep previous QR if any
+      renderEventQr();
+      renderInviteQr();
+      setSaveState("warn", "QR-Code: keine Internetverbindung");
+      setTimeout(()=>setSaveState("good","Gespeichert"), 1200);
+    }
+  }
+
+  // Invitation
+  function buildInvitationText(){
+    const e = state.event;
+    const tone = $("#invTone").value;
+    const audience = $("#invAudience").value;
+
+    const title = e.title || "Vereinsausflug / Jugendveranstaltung";
+    const dateNice = e.date ? fmtDate(e.date) : "—";
+    const timeNice = (e.start && e.end) ? `${e.start} – ${e.end} Uhr` : (e.start ? `${e.start} Uhr` : "—");
+    const location = e.location || "—";
+    const meet = e.meet || "—";
+    const cost = (e.cost!=="" && e.cost!=null) ? `${e.cost} €` : "—";
+    const contact = e.contact || "—";
+    const deadline = e.rsvpDeadline ? fmtDate(e.rsvpDeadline) : "—";
+    const signup = e.signupLink ? e.signupLink : "";
+
+    const bring = (e.bring || "").trim();
+    const notes = (e.notes || "").trim();
+
+    let hi = "";
+    if(audience==="parents") hi = "Liebe Eltern,";
+    else if(audience==="youth") hi = "Hey zusammen,";
+    else hi = "Liebe Eltern, liebe Teilnehmende,";
+
+    let intro = "";
+    if(tone==="formal") intro = `hiermit laden wir herzlich zu unserer Jugendveranstaltung ein.`;
+    else if(tone==="short") intro = `hier kommen die Infos zum nächsten Ausflug:`;
+    else intro = `wir planen einen schönen gemeinsamen Ausflug – hier sind alle Infos:`;
+
+    const bullets = [
+      `Anlass: ${title}`,
+      `Datum: ${dateNice}`,
+      `Zeit: ${timeNice}`,
+      `Ort: ${location}`,
+      `Treffpunkt/Abfahrt: ${meet}`,
+      `Kosten: ${cost}`,
+      `Anmeldeschluss: ${deadline}`,
+      `Kontakt: ${contact}`,
+    ];
+
+    let txt = `${hi}\n\n${intro}\n\n${bullets.join("\n")}\n`;
+    if(signup) txt += `\nAnmeldung: ${signup}\n`;
+    if(bring) txt += `\nBitte mitbringen:\n${bring}\n`;
+    if(notes) txt += `\nHinweise:\n${notes}\n`;
+
+    if(tone==="formal") txt += `\nMit freundlichen Grüßen\n${contact !== "—" ? contact : "Euer Team"}`;
+    else if(tone==="short") txt += `\nViele Grüße\n${contact !== "—" ? contact : "Euer Team"}`;
+    else txt += `\nWir freuen uns auf euch!\n${contact !== "—" ? contact : "Euer Team"}`;
+
+    return txt;
+  }
+
+
+  function nlToListItems(text){
+    const lines = (text||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    // allow bullets beginning with • or -
+    return lines.map(l=>l.replace(/^([•\-]\s*)/, "")).filter(Boolean);
+  }
+
+  function getInviteSettings(){
+    return {
+      tone: $("#invTone")?.value || "friendly",
+      audience: $("#invAudience")?.value || "parents",
+      includeConsent: $("#invIncludeConsent")?.checked || false,
+      needSwim: $("#invNeedSwim")?.checked || false,
+      includePhoto: $("#invIncludePhotoNote")?.checked ?? true,
+      consentText: $("#invConsentText")?.value || ""
+    };
+  }
+
+  function inviteGreeting(audience){
+    if(audience==="parents") return "Liebe Eltern,";
+    if(audience==="youth") return "Hey zusammen,";
+    return "Liebe Eltern, liebe Teilnehmende,";
+  }
+
+  function buildInvitationPageInnerHtml(){
+    const e = state.event;
+    const s = getInviteSettings();
+
+    const title = escapeHtml(e.title || "Einladung");
+    const dateNice = escapeHtml(e.date ? fmtDate(e.date) : "—");
+    const timeNice = escapeHtml((e.start && e.end) ? `${e.start} – ${e.end} Uhr` : (e.start ? `${e.start} Uhr` : "—"));
+    const location = escapeHtml(e.location || "—");
+    const meet = escapeHtml(e.meet || "—");
+    const forWho = escapeHtml(e.forWho || "—");
+    const cost = escapeHtml((e.cost!=="" && e.cost!=null) ? `${e.cost} €` : "—");
+    const deadline = escapeHtml(e.rsvpDeadline ? fmtDate(e.rsvpDeadline) : "—");
+    const contact = escapeHtml(e.contact || "Jugendvorstand");
+    const signup = (e.signupLink || "").trim();
+    const bringItems = nlToListItems(e.bring);
+    const program = (e.program || "").trim();
+    const notes = (e.notes || "").trim();
+
+    const hello = inviteGreeting(s.audience);
+
+    const intro = (s.tone==="formal")
+      ? "hiermit laden wir herzlich zu unserer Veranstaltung ein."
+      : (s.tone==="short")
+        ? "hier kommen die Infos:"
+        : "wir planen eine coole Aktion – hier sind alle Infos:";
+
+    const qrImg = state.event.qrDataUrl ? `<img src="${state.event.qrDataUrl}" alt="QR-Code">` : `<div class="muted" style="font-size:12px;">(QR nicht verfügbar)</div>`;
+    const linkLine = signup ? `<div class="small">${escapeHtml(signup)}</div>` : `<div class="small">(kein Link)</div>`;
+
+    let bringHtml = "";
+    if(bringItems.length){
+      bringHtml = `<div class="invite-section-title">Was brauchst du?</div><ul class="invite-list">${bringItems.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+    }
+
+    let programHtml = "";
+    if(program){
+      programHtml = `<div class="invite-section-title">Was steht auf dem Programm?</div><div class="invite-par">${escapeHtml(program).replace(/\n/g,"<br>")}</div>`;
+    }
+
+    let notesHtml = "";
+    if(notes){
+      notesHtml = `<div class="invite-section-title">Hinweise</div><div class="invite-par">${escapeHtml(notes).replace(/\n/g,"<br>")}</div>`;
+    }
+
+    let consentHtml = "";
+    if(s.includeConsent){
+      const d = e.date ? e.date.split("-").reverse().join(".") : "___.___.____";
+      const base = s.consentText.trim() || `_________________________________________ nimmt am ${d} an „${e.title || "der Veranstaltung"}“ teil${s.needSwim ? " und kann schwimmen" : ""}.`;
+      consentHtml = `
+        <div class="invite-consent">
+          <div class="line" style="border-bottom:none; height:auto; margin-bottom:6px;">${escapeHtml(base)}</div>
+          <div class="consent-grid">
+            <div>
+              <div class="line"></div>
+              <div style="margin-top:4px;">Name des Kindes</div>
+            </div>
+            <div>
+              <div class="line"></div>
+              <div style="margin-top:4px;">Telefonnummer</div>
+            </div>
+            <div>
+              <div class="line"></div>
+              <div style="margin-top:4px;">Unterschrift Erziehungsberechtigte(r)</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    let photoNote = "";
+    if(s.includePhoto){
+      photoNote = `Mit der Anmeldung wird dem Verein gestattet, Bilder von Kindern bei Jugendaktionen auf der Homepage und in der örtlichen Presse zu veröffentlichen. Ein Widerspruch ist jederzeit schriftlich möglich.`;
+    }
+
+    return `
+      <div class="invite-page">
+        <div class="invite-head">${JSC_HEADER_DATAURI ? `<img src="${JSC_HEADER_DATAURI}" alt="JSC Header">` : ""}</div>
+        <div class="invite-par">${escapeHtml(hello)}<br><br>${escapeHtml(intro)}</div>
+        <div class="invite-title">${title}</div>
+
+        <div class="invite-kv">
+          <div class="k">Wann?</div><div>${dateNice}${e.start || e.end ? `, ${timeNice}` : ""}</div>
+          <div class="k">Wo?</div><div>${location}</div>
+          <div class="k">Treffpunkt</div><div>${meet}</div>
+          <div class="k">Für wen?</div><div>${forWho}</div>
+          <div class="k">Kosten</div><div>${cost}</div>
+          <div class="k">Anmeldeschluss</div><div>${deadline}</div>
+        </div>
+
+        ${bringHtml}
+        ${programHtml}
+        ${notesHtml}
+
+        <div class="invite-footer">
+          <div style="flex:1; min-width:260px;">
+            <div class="invite-par"><b>Bitte melde dich bis spätestens ${deadline}</b> ${signup ? "per QR-Code / Link-Anmeldung" : "bei uns"} an.</div>
+            ${signup ? `<div class="invite-par">Alternativ per E-Mail an <span style="text-decoration:underline;">jugendvorstand-jsc@web.de</span>.</div>` : `<div class="invite-par">E-Mail: <span style="text-decoration:underline;">jugendvorstand-jsc@web.de</span>.</div>`}
+            <div class="invite-par" style="margin-top:14px;">Wir freuen uns auf Dich!<br><b>Dein Jugendvorstand</b></div>
+          </div>
+          <div class="invite-qr">
+            ${qrImg}
+            ${linkLine}
+          </div>
+        </div>
+
+        ${consentHtml}
+
+        ${photoNote ? `<div class="invite-small">${escapeHtml(photoNote)}</div>` : ""}
+      </div>
+    `;
+  }
+
+  function printInvitationPdf(){
+    const title = (state.event.title || "Einladung").replace(/[\n\r]/g," ");
+    const htmlBody = buildInvitationPageInnerHtml();
+    const w = window.open("", "_blank");
+    if(!w){
+      alert("Popup blockiert. Bitte Popups erlauben.");
+      return;
+    }
+    const css = `
+      @page{ size:A4; margin: 18mm; }
+      body{ font-family: Tahoma, Arial, sans-serif; margin:0; }
+      .invite-page{ max-width:none; }
+      img{ max-width:100%; }
+    `;
+    w.document.open();
+    w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>${css}</style></head><body>${htmlBody}</body></html>`);
+    w.document.close();
+    w.focus();
+    // Print after a short delay to allow images
+    setTimeout(()=>{ w.print(); }, 350);
+  }
+
+function renderInvitationPreview(){
+    const box = $("#invitePagePreview");
+    if(box) box.innerHTML = buildInvitationPageInnerHtml();
+    renderInviteQr();
+  }
+  $("#btnGenInvite").addEventListener("click", ()=> { renderInvitationPreview(); scheduleSave(); });
+  $("#invTone").addEventListener("change", renderInvitationPreview);
+  $("#invAudience").addEventListener("change", renderInvitationPreview);
+
+  ["#invIncludeConsent","#invNeedSwim","#invIncludePhotoNote","#invConsentText"].forEach(sel=>{
+    const el = $(sel);
+    if(!el) return;
+    el.addEventListener("input", ()=>{ renderInvitationPreview(); scheduleSave(); });
+    el.addEventListener("change", ()=>{ renderInvitationPreview(); scheduleSave(); });
+  });
+
+
+  $("#btnCopyInvite").addEventListener("click", async ()=>{
+    const text = buildInvitationText();
+    try{
+      await navigator.clipboard.writeText(text);
+      setSaveState("good","Einladung kopiert");
+      setTimeout(()=>setSaveState("good","Gespeichert"), 900);
+    }catch{
+      alert("Kopieren nicht erlaubt. Bitte manuell markieren und kopieren.");
+    }
+  });
+
+  $("#btnPrintInvitePdf").addEventListener("click", ()=> { renderInvitationPreview(); printInvitationPdf(); });
+
+  $("#btnDownloadInviteHtml").addEventListener("click", ()=>{
+    const e = state.event;
+    const title = e.title || "Einladung";
+    const body = buildInvitationText().replace(/\n/g,"<br>");
+    const html = `<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title}</title>
+<style>
+body{font-family:Tahoma,Arial,sans-serif; line-height:1.55; padding:28px; max-width:860px; margin:0 auto;}
+.card{border:2px solid #000; padding:18px;}
+</style></head><body>
+<h1>${title}</h1>
+<div class="card">${body}</div>
+</body></html>`;
+    download(`einladung_${safeFileName(title)}.html`, html, "text/html;charset=utf-8");
+  });
+
+  function icsNowUtc(){
+    const d = new Date();
+    const y = d.getUTCFullYear();
+    const m = pad2(d.getUTCMonth()+1);
+    const da = pad2(d.getUTCDate());
+    const hh = pad2(d.getUTCHours());
+    const mm = pad2(d.getUTCMinutes());
+    const ss = pad2(d.getUTCSeconds());
+    return `${y}${m}${da}T${hh}${mm}${ss}Z`;
+  }
+  function escapeIcs(s){
+    return (s ?? "").toString()
+      .replace(/\\/g,"\\\\")
+      .replace(/\n/g,"\\n")
+      .replace(/,/g,"\\,")
+      .replace(/;/g,"\\;")
+      .replace(/\r/g,"");
+  }
+
+  $("#btnDownloadICS").addEventListener("click", ()=>{
+    const e = state.event;
+    const dtStart = icsDateTime(e.date, e.start || "09:00");
+    const dtEnd = icsDateTime(e.date, e.end || "12:00");
+    const summary = (e.title || "Vereinsausflug").replace(/\n/g," ");
+    const desc = buildInvitationText().replace(/\n/g,"\\n");
+    const loc = (e.location || "").replace(/\n/g," ");
+    const uidStr = `${uid()}@jugendfreizeit-os.local`;
+
+    const ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Jugendfreizeit-OS//Vereinsausflug Planer//DE",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH",
+      "BEGIN:VEVENT",
+      `UID:${uidStr}`,
+      `DTSTAMP:${icsNowUtc()}`,
+      `DTSTART;TZID=Europe/Berlin:${dtStart}`,
+      `DTEND;TZID=Europe/Berlin:${dtEnd}`,
+      `SUMMARY:${escapeIcs(summary)}`,
+      `LOCATION:${escapeIcs(loc)}`,
+      `DESCRIPTION:${escapeIcs(desc)}`,
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].join("\r\n");
+
+    download(`event_${safeFileName(summary)}.ics`, ics, "text/calendar;charset=utf-8");
+  });
+
+  // Tasks
+  function renderTasks(){
+    const tb = $("#tasksTable tbody");
+    tb.innerHTML = "";
+    state.tasks.forEach(t=>{
+      const tr = document.createElement("tr");
+
+      const tdTitle = document.createElement("td");
+      const ti = document.createElement("input");
+      ti.className="inset bevel";
+      ti.value = t.title; ti.placeholder="Aufgabe";
+      ti.addEventListener("input", ()=>{ t.title=ti.value; scheduleSave(); refreshProgress(); });
+      tdTitle.appendChild(ti);
+
+      const tdDue = document.createElement("td");
+      const due = document.createElement("input");
+      due.className="inset bevel";
+      due.type="date"; due.value = t.due || "";
+      due.addEventListener("input", ()=>{ t.due=due.value; scheduleSave(); });
+      tdDue.appendChild(due);
+
+      const tdOwner = document.createElement("td");
+      const owner = document.createElement("input");
+      owner.className="inset bevel";
+      owner.value = t.owner || ""; owner.placeholder="Name";
+      owner.addEventListener("input", ()=>{ t.owner=owner.value; scheduleSave(); });
+      tdOwner.appendChild(owner);
+
+      const tdStatus = document.createElement("td");
+      const st = document.createElement("select");
+      st.className="inset bevel";
+      ["Offen","In Arbeit","Erledigt"].forEach(v=>{
+        const o=document.createElement("option"); o.value=v; o.textContent=v;
+        st.appendChild(o);
+      });
+      st.value = t.status || "Offen";
+      st.addEventListener("change", ()=>{ t.status=st.value; scheduleSave(); refreshProgress(); });
+      tdStatus.appendChild(st);
+
+      const tdNotes = document.createElement("td");
+      const notes = document.createElement("input");
+      notes.className="inset bevel";
+      notes.value = t.notes || ""; notes.placeholder="Notizen";
+      notes.addEventListener("input", ()=>{ t.notes=notes.value; scheduleSave(); });
+      tdNotes.appendChild(notes);
+
+      const tdAct = document.createElement("td");
+      const del = document.createElement("button");
+      del.className="btn outset bevel small"; del.textContent="Löschen";
+      del.addEventListener("click", ()=>{ state.tasks = state.tasks.filter(x=>x.id!==t.id); scheduleSave(); renderTasks(); refreshProgress(); });
+      tdAct.appendChild(del);
+
+      tr.append(tdTitle, tdDue, tdOwner, tdStatus, tdNotes, tdAct);
+      tb.appendChild(tr);
+    });
+    refreshProgress();
+  }
+
+  function refreshProgress(){
+    const total = state.tasks.length;
+    const done = state.tasks.filter(t=>t.status==="Erledigt").length;
+    const pct = total ? Math.round(done/total*100) : 0;
+    $("#progBar2").style.width = pct + "%";
+    $("#progText2").textContent = `${done}/${total} erledigt`;
+
+    $("#progBar").style.width = pct + "%";
+    $("#progText").textContent = `${done}/${total} Aufgaben erledigt`;
+  }
+
+  $("#addTask").addEventListener("click", ()=>{
+    state.tasks.push({ id:uid(), title:"", due:"", owner:"", status:"Offen", notes:"" });
+    scheduleSave(); renderTasks();
+  });
+
+  function setTemplate(kind){
+    const e = state.event;
+    const baseOwner = (e.contact || "").split(/[-–—]/)[0].trim() || "";
+    const d = e.date || "";
+    const plusDays = (n) => {
+      if(!d) return "";
+      const [y,m,da] = d.split("-").map(Number);
+      const dt = new Date(y, m-1, da);
+      dt.setDate(dt.getDate()+n);
+      return `${dt.getFullYear()}-${pad2(dt.getMonth()+1)}-${pad2(dt.getDate())}`;
+    };
+
+    let tasks = [];
+    if(kind==="day"){
+      tasks = [
+        ["Ziel/Ort final bestätigen", plusDays(-21)],
+        ["Kosten kalkulieren & freigeben", plusDays(-21)],
+        ["Einladung versenden (inkl. Anmeldeschluss)", plusDays(-18)],
+        ["Anmeldungen sammeln & Rückfragen klären", plusDays(-12)],
+        ["Transport: Fahrer + Plätze sichern", plusDays(-10)],
+        ["Einverständniserklärungen/Allergien checken", plusDays(-7)],
+        ["Zeitplan (Treffpunkt, Abfahrt, Programm)", plusDays(-5)],
+        ["Materialliste & Mitbringliste final", plusDays(-4)],
+        ["Notfallmappe (Kontakte, Erste Hilfe)", plusDays(-2)],
+        ["Nachbereitung: Abrechnung + Dank + Feedback", plusDays(2)],
+      ];
+    }else{
+      tasks = [
+        ["Unterkunft/Programm buchen & bestätigen", plusDays(-35)],
+        ["Budget & Kasse klären", plusDays(-35)],
+        ["Einladung + Packliste + Regeln versenden", plusDays(-28)],
+        ["Zimmer-/Gruppeneinteilung vorbereiten", plusDays(-14)],
+        ["Transport/Abholzeiten final", plusDays(-10)],
+        ["Essensplanung / Allergien", plusDays(-10)],
+        ["Nachtwachen/Betreuerplan", plusDays(-7)],
+        ["Einverständnisse + Notfallkontakte final", plusDays(-5)],
+        ["Material & Spiele packen", plusDays(-2)],
+        ["Nachbereitung (Fotos/DSGVO, Feedback, Abrechnung)", plusDays(3)],
+      ];
+    }
+
+    tasks.forEach(([title,due])=>{
+      const key = (title+"|"+(due||"")).trim().toLowerCase();
+      const exists = state.tasks.some(t => (t.title+"|"+(t.due||"")).trim().toLowerCase() === key);
+      if(!exists){
+        state.tasks.push({ id:uid(), title, due, owner:baseOwner, status:"Offen", notes:"" });
+      }
+    });
+    scheduleSave(); renderTasks();
+  }
+  $("#tplDayTrip").addEventListener("click", ()=> setTemplate("day"));
+  $("#tplOvernight").addEventListener("click", ()=> setTemplate("overnight"));
+
+  $("#btnExportTasksCsv").addEventListener("click", ()=>{
+    const rows = [];
+    rows.push(["Aufgabe","Fällig","Verantwortlich","Status","Notizen"].map(escapeCsv).join(";"));
+    state.tasks.forEach(t=>{
+      rows.push([t.title,t.due,t.owner,t.status,t.notes].map(escapeCsv).join(";"));
+    });
+    download(`tasks_${safeFileName(state.event.title||"ausflug")}.csv`, rows.join("\n"), "text/csv;charset=utf-8");
+  });
+
+  // Files
+  $("#btnExportJSON").addEventListener("click", ()=>{
+    const name = `plan_${safeFileName(state.event.title||"ausflug")}.json`;
+    download(name, JSON.stringify(state, null, 2), "application/json;charset=utf-8");
+  });
+  $("#fileImportJSON").addEventListener("change", async (ev)=>{
+    const file = ev.target.files?.[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      state = { ...defaultState(), ...obj };
+      saveState();
+      fullRender();
+      alert("Import erfolgreich.");
+    }catch{
+      alert("Import fehlgeschlagen: ungültige JSON-Datei.");
+    }finally{
+      ev.target.value = "";
+    }
+  });
+
+  $("#btnWipe").addEventListener("click", ()=>{
+    if(confirm("Lokale Daten wirklich löschen?")){
+      localStorage.removeItem(STORAGE_KEY);
+      state = defaultState();
+      saveState();
+      fullRender();
+      alert("Gelöscht.");
+    }
+  });
+
+  // Dashboard
+  function refreshDashboard(){
+    const cap = computeCapacity();
+    $("#statKids").textContent = cap.kids;
+    $("#statSup").textContent = cap.supAll;
+    $("#statDrivers").textContent = cap.driversCount;
+    $("#statSeats").textContent = cap.totalSeats;
+
+    const e = state.event;
+    let s = "";
+    if(!e.title && !e.date && !e.location){
+      s = "Noch keine Eventdaten eingetragen.";
+    }else{
+      s = `<b>${escapeHtml(e.title || "Event")}</b><br>
+           Datum: ${escapeHtml(e.date ? fmtDate(e.date) : "—")}<br>
+           Zeit: ${escapeHtml((e.start && e.end)? `${e.start}–${e.end}` : (e.start||"—"))}<br>
+           Ort: ${escapeHtml(e.location || "—")}<br>
+           Treffpunkt: ${escapeHtml(e.meet || "—")}<br>
+           Anmeldeschluss: ${escapeHtml(e.rsvpDeadline ? fmtDate(e.rsvpDeadline) : "—")}`;
+    }
+    $("#eventSummary").innerHTML = s;
+
+    const capBox = $("#capacityBox");
+    const capOk = $("#capacityOk");
+    capBox.style.display = "none";
+    capOk.style.display = "none";
+
+    if(cap.driversCount===0 && (cap.kids>0 || cap.supAll>0)){
+      capBox.style.display = "block";
+      capBox.textContent = "Noch keine Fahrer/Autos eingetragen. Für die Auto-Aufteilung: Betreuer „Fährt?“ + Sitzplätze eintragen.";
+    }else if(cap.passengerSeats < cap.passengersToPlace){
+      const missing = cap.passengersToPlace - cap.passengerSeats;
+      capBox.style.display = "block";
+      capBox.innerHTML = `Nicht genug Mitfahrer-Plätze. Es fehlen mindestens <b>${missing}</b>.`;
+    }else if(cap.passengerSeats >= cap.passengersToPlace && cap.passengersToPlace>0){
+      capOk.style.display = "block";
+      capOk.innerHTML = `Plätze reichen grundsätzlich. Du kannst jetzt eine Auto-Zuweisung erzeugen.`;
+    }
+
+    refreshProgress();
+  }
+
+  // Quick buttons
+  $("#goTransport").addEventListener("click", ()=> switchTab("transport"));
+  $("#goInvite").addEventListener("click", ()=> switchTab("invitation"));
+
+  // Sample / New
+  $("#btnNew").addEventListener("click", ()=>{
+    if(confirm("Neuen Plan starten? (Löscht den aktuellen Plan in diesem Browser)")){
+      state = defaultState();
+      saveState();
+      fullRender();
+    }
+  });
+
+  $("#btnSample").addEventListener("click", ()=>{
+    state = defaultState();
+    state.event.title = "Vereinsausflug: Kletterpark";
+    state.event.start = "08:30";
+    state.event.end = "17:30";
+    state.event.location = "Kletterpark Beispielstadt, Beispielstraße 12";
+    state.event.meet = "Vereinsheim Parkplatz, 08:15 Uhr";
+    state.event.cost = "15";
+    state.event.contact = "Lennard – 0151 12345678";
+    state.event.signupLink = "https://forms.gle/beispiel";
+    state.event.forWho = "Alle ab 8 Jahren";
+    state.event.program = "Wir bauen gemeinsam auf, spielen Matches (Fußball/Volleyball/Brennball) und grillen abends.";
+    state.event.bring = "• Trinkflasche\n• Sportschuhe\n• Wetterfeste Kleidung\n• Kleines Vesper";
+    state.event.notes = "Bitte Allergien/Unverträglichkeiten vorab melden.\nBei Regen ggf. Alternativprogramm.";
+
+    for(let i=1;i<=22;i++){
+      const group = i<=11 ? "Team Blau" : "Team Rot";
+      state.children.push({ id:uid(), name:`Kind ${i}`, group, notes:"" });
+    }
+    state.supervisors.push({ id:uid(), name:"Betreuer A", drives:true,  carName:"Auto A", carSeats:"5", phone:"" });
+    state.supervisors.push({ id:uid(), name:"Betreuer B", drives:true,  carName:"Auto B", carSeats:"7", phone:"" });
+    state.supervisors.push({ id:uid(), name:"Betreuer C", drives:true,  carName:"Auto C", carSeats:"9", phone:"" });
+    state.supervisors.push({ id:uid(), name:"Betreuer D", drives:false, carName:"", carSeats:"", phone:"" });
+    state.supervisors.push({ id:uid(), name:"Betreuer E", drives:false, carName:"", carSeats:"", phone:"" });
+
+    setTemplate("day");
+    saveState();
+    fullRender();
+    switchTab("dashboard");
+  });
+
+  function fullRender(){
+    renderEventForm();
+    renderEventQr();
+    renderInviteQr();
+    renderKids();
+    renderSup();
+    renderTasks();
+    renderTransport();
+    renderInvitationPreview();
+    refreshDashboard();
+  }
+
+  // init
+  $("#optSupFirst").checked = !!state.transport.options.supFirst;
+  $("#optKeepGroups").checked = !!state.transport.options.keepGroups;
+  $("#optShuffle").checked = !!state.transport.options.shuffle;
+
+  fullRender();
+})();
+</script>
 </body>
 </html>
