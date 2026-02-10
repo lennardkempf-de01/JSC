@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>JSC-Ausflugs-Planer V4.2</title>
+  <title>JSC-Ausflugs-Planer V4.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
 
@@ -324,6 +324,129 @@
   #pasteModal .card-h{ background: linear-gradient(90deg, var(--blue-1), var(--blue-2) 55%, var(--blue-3)); color:#fff; border-bottom: 1px solid #001E46; }
   #pasteModal .card-h *{ color:#fff !important; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
 
+
+
+  /* -------------------- Hilfe / Intro Overlay -------------------- */
+  .btn-help{
+    color:#fff;
+    border-color:#1e5c2f;
+    background: linear-gradient(#3DBE63, #1F8A3E);
+    box-shadow:
+      inset 1px 1px 0 rgba(255,255,255,.35),
+      inset -1px -1px 0 rgba(0,0,0,.22);
+  }
+  .btn-help:hover{ filter: brightness(1.03); }
+  .btn-help:active{ transform: translateY(1px); }
+
+  .helpOverlay{
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 16px;
+  }
+  .helpOverlay.hidden{ display:none; }
+
+  .helpBackdrop{
+    position:absolute;
+    inset:0;
+    background: rgba(0,0,0,.45);
+    animation: helpFadeIn .18s ease-out both;
+  }
+
+  .helpModal{
+    position: relative;
+    width: min(920px, calc(100vw - 24px));
+    animation: helpPop .22s cubic-bezier(.2,.9,.2,1) both;
+  }
+
+  .helpBadge{
+    width: 28px; height: 28px;
+    display:grid; place-items:center;
+    border-radius: 999px;
+    /* XP-ish */
+    background: rgba(58,110,165,.14);
+    border: 1px solid rgba(58,110,165,.35);
+    color: var(--ui-bg);
+    font-weight: 900;
+  }
+
+  .helpIllustration{
+    border: 1px solid var(--border);
+    background: linear-gradient(#F6F5F0, #E9E5DB);
+    border-radius: var(--radius);
+    overflow:hidden;
+    min-height: 210px;
+  }
+  .helpIlloInner{
+    position: relative;
+    width:100%; height:100%;
+    display:grid; place-items:center;
+    padding: 14px;
+  }
+
+  .helpBlob{
+    position:absolute;
+    width: 180px; height: 180px;
+    border-radius: 999px;
+    filter: blur(0px);
+    opacity:.65;
+    mix-blend-mode: multiply;
+    animation: helpFloat 5.5s ease-in-out infinite;
+  }
+  .helpBlob.b1{ background: rgba(76,125,206,.35); top:-40px; left:-50px; }
+  .helpBlob.b2{ background: rgba(0, 153, 0, .22); bottom:-60px; right:-40px; animation-delay: .7s; }
+  .helpBlob.b3{ background: rgba(252, 211, 77, .24); top: 40%; left: 55%; width:140px; height:140px; animation-delay: 1.4s; }
+
+  .helpGlow{
+    position:absolute;
+    inset: -40%;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.9), rgba(255,255,255,0) 55%);
+    opacity:.55;
+    pointer-events:none;
+    animation: helpPulse 2.4s ease-in-out infinite;
+  }
+
+  .helpIconWrap{
+    position: relative;
+    width: 92px; height: 92px;
+    display:grid; place-items:center;
+    border-radius: 22px;
+    border: 1px solid rgba(0,60,116,.25);
+    background: linear-gradient(#FFFFFF, #F1F1F1);
+    box-shadow:
+      inset 1px 1px 0 rgba(255,255,255,.6),
+      inset -1px -1px 0 rgba(0,0,0,.08),
+      0 8px 18px rgba(0,0,0,.12);
+    animation: helpWiggle .28s ease-out both;
+  }
+  .helpIconWrap svg{ width: 52px; height: 52px; }
+
+  .helpStepAnim{
+    animation: helpSlide .18s ease-out both;
+  }
+
+  #helpDots button{
+    width: 10px; height: 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,60,116,.35);
+    background: rgba(0,60,116,.12);
+    opacity:.85;
+  }
+  #helpDots button[data-active="true"]{
+    background: rgba(58,110,165,.75);
+    border-color: rgba(58,110,165,.85);
+  }
+
+  @keyframes helpFadeIn{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes helpPop{ from{ opacity:0; transform: translateY(8px) scale(.98); } to{ opacity:1; transform: translateY(0) scale(1); } }
+  @keyframes helpSlide{ from{ opacity:0; transform: translateX(10px); } to{ opacity:1; transform: translateX(0); } }
+  @keyframes helpFloat{ 0%,100%{ transform: translate(0,0); } 50%{ transform: translate(10px,-10px); } }
+  @keyframes helpPulse{ 0%,100%{ opacity:.45; } 50%{ opacity:.7; } }
+  @keyframes helpWiggle{ from{ transform: scale(.96); } to{ transform: scale(1); } }
+
 </style>
 </head>
 <body class="ios-body">
@@ -347,7 +470,7 @@
   <div class="card w-full max-w-md overflow-hidden">
     <div class="card-h">
       <div>
-        <div class="text-lg font-extrabold tracking-tight">JSC-Ausflugs-Planer <span class="text-sm font-semibold text-slate-500">V4.2</span></div>
+        <div class="text-lg font-extrabold tracking-tight">JSC-Ausflugs-Planer <span class="text-sm font-semibold text-slate-500">V4.7</span></div>
         <div class="text-xs text-slate-500">Bitte anmelden, bevor das Tool geladen wird.</div>
       </div>
       <div class="h-10 w-10 rounded-2xl bg-[color:var(--brand)]/10 border border-[color:var(--brand)]/20 grid place-items-center">
@@ -390,7 +513,7 @@
           <img class="logoImg" alt="JSC" style="width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 1px 0 rgba(0,0,0,.12));" />
         </div>
         <div>
-          <div class="text-lg font-extrabold tracking-tight">JSC-Ausflugs-Planer <span class="text-sm font-semibold text-slate-500">V4.2</span></div>
+          <div class="text-lg font-extrabold tracking-tight">JSC-Ausflugs-Planer <span class="text-sm font-semibold text-slate-500">V4.7</span></div>
           <div class="text-xs text-slate-500 flex flex-wrap items-center gap-2">
   <span id="helloUser"></span>
   <span class="opacity-60">•</span>
@@ -401,6 +524,8 @@
 
       <div class="ml-auto flex items-center gap-2">
         <button id="saveBtn" class="btn">Speichern</button>
+
+        <button id="helpBtn" class="btn btn-help">Hilfe</button>
 
         <div class="relative">
           <button id="toolsBtn" class="btn">Tools ▾</button>
@@ -421,7 +546,62 @@
     </div>
   </header>
 
-  <main class="mx-auto max-w-6xl px-4 py-6 space-y-6">
+  
+  <!-- HELP / INTRO (overlay) -->
+  <div id="helpOverlay" class="helpOverlay hidden" aria-hidden="true">
+    <div class="helpBackdrop" data-help-close="true"></div>
+
+    <div class="helpModal card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="card-h">
+        <div class="flex items-center gap-3">
+          <div class="helpBadge" aria-hidden="true">?</div>
+          <div>
+            <div id="helpTitle" class="text-sm font-extrabold tracking-tight">Hilfe</div>
+            <div id="helpSubtitle" class="text-xs text-slate-500">Kurze Einführung</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="helpCloseBtn" class="btn">Schließen</button>
+        </div>
+      </div>
+
+      <div class="p-4">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-stretch">
+          <div class="md:col-span-2 helpIllustration">
+            <div class="helpIlloInner">
+              <div class="helpBlob b1"></div>
+              <div class="helpBlob b2"></div>
+              <div class="helpBlob b3"></div>
+              <div id="helpIcon" class="helpIconWrap"></div>
+              <div class="helpGlow" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div class="md:col-span-3 flex flex-col gap-3">
+            <div class="space-y-1">
+              <div id="helpStepTitle" class="text-base font-extrabold"></div>
+              <div id="helpStepText" class="text-sm text-slate-700 leading-relaxed"></div>
+            </div>
+
+            <ul id="helpStepBullets" class="text-sm text-slate-700 list-disc pl-5 space-y-1"></ul>
+
+            <div class="mt-auto pt-2 flex items-center justify-between gap-3">
+              <div id="helpDots" class="flex items-center gap-2"></div>
+              <div class="flex items-center gap-2">
+                <button id="helpPrevBtn" class="btn">← Zurück</button>
+                <button id="helpNextBtn" class="btn btn-primary">Weiter →</button>
+              </div>
+            </div>
+
+            <div class="text-xs text-slate-500 pt-1">Tipp: <span class="font-semibold">Esc</span> schließt • <span class="font-semibold">Enter</span> = Weiter</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<main class="mx-auto max-w-6xl px-4 py-6 space-y-6">
 
     <!-- PANE: EVENT -->
     <section id="pane-event" class="pane" data-active="true">
@@ -484,7 +664,7 @@ space-y-3">
                 </div>
                 <div>
                   <div class="label mb-1">Kosten (Schätzung, €)</div>
-                  <input id="evCost" class="input" type="number" min="0" step="0.5" />
+                  <input id="evCost" class="input" type="number" min="0" step="1" />
                 </div>
                 <div>
                   <div class="label mb-1">Anmeldeschluss</div>
@@ -574,7 +754,7 @@ space-y-3">
           <div class="card-h">
             <div>
               <div class="text-base font-bold">Kinder hinzufügen</div>
-              <div class="text-xs text-slate-500">Name + Alter (für Altersstaffel in Kostenrechnung).</div>
+              <div class="text-xs text-slate-500">Name + Alter (für Altersstaffel in Kostenrechnung). Tipp: aus Excel/Form-Export kopieren → „Liste einfügen…“.</div>
             </div>
             <div class="flex items-center gap-2">
               <button id="pasteChildrenBtn" class="btn">Liste einfügen…</button>
@@ -601,7 +781,7 @@ space-y-3">
           <div class="card-h">
             <div>
               <div class="text-base font-bold">Betreuer hinzufügen</div>
-              <div class="text-xs text-slate-500">Wenn „Fährt“ angehakt ist, erscheint die Person direkt in der Auto-Verwaltung.</div>
+              <div class="text-xs text-slate-500">Wenn „Fährt“ angehakt ist, erscheint die Person direkt in der Auto-Verwaltung. Tipp: aus Excel/Form-Export kopieren → „Liste einfügen…“.</div>
             </div>
             <div class="flex items-center gap-2">
               <button id="pasteCarersBtn" class="btn">Liste einfügen…</button>
@@ -733,17 +913,18 @@ space-y-3">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div class="label mb-1">Fixkosten (€)</div>
-                <input id="costFixed" class="input" type="number" min="0" step="0.5" />
+                <input id="costFixed" class="input" type="number" min="0" step="1" />
               </div>
               <div>
                 <div class="label mb-1">Variabel pro Kind (€)</div>
-                <input id="costPerKid" class="input" type="number" min="0" step="0.5" />
+                <input id="costPerKid" class="input" type="number" min="0" step="1" />
               </div>
               <div>
                 <div class="label mb-1">Variabel pro Betreuer (€)</div>
-                <input id="costPerCarer" class="input" type="number" min="0" step="0.5" />
+                <input id="costPerCarer" class="input" type="number" min="0" step="1" />
               </div>
             </div>
+            <div class="text-xs text-slate-500">Fixkosten = einmalig (z.B. Bus, Reservierung). Variabel pro Kind/Betreuer = Betrag pro Person (z.B. Eintritt, Essen). „Kosten aufteilen auf“ bestimmt, ob am Ende nur die Kinder zahlen oder alle.</div>
 
             <div class="card bg-slate-50 border-slate-200">
               <div class="card-b space-y-4">
@@ -765,7 +946,7 @@ space-y-3">
                   </div>
                   <div>
                     <div class="label mb-1">Preis (€)</div>
-                    <input id="tier1Price" class="input" type="number" min="0" step="0.5" />
+                    <input id="tier1Price" class="input" type="number" min="0" step="1" />
                   </div>
                   <div class="hidden md:block"></div>
 
@@ -775,7 +956,7 @@ space-y-3">
                   </div>
                   <div>
                     <div class="label mb-1">Preis (€)</div>
-                    <input id="tier2Price" class="input" type="number" min="0" step="0.5" />
+                    <input id="tier2Price" class="input" type="number" min="0" step="1" />
                   </div>
                   <div class="hidden md:block"></div>
 
@@ -785,7 +966,7 @@ space-y-3">
                   </div>
                   <div>
                     <div class="label mb-1">Preis (€)</div>
-                    <input id="tier3Price" class="input" type="number" min="0" step="0.5" />
+                    <input id="tier3Price" class="input" type="number" min="0" step="1" />
                   </div>
                   <div class="text-xs text-slate-500 flex items-end">(Betreuer ohne Alter zählen als „ab Alter“)</div>
                 </div>
@@ -795,15 +976,15 @@ space-y-3">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div class="label mb-1">Beisteuerung Jugendkasse (€)</div>
-                <input id="costYouthFund" class="input" type="number" min="0" step="0.5" />
+                <input id="costYouthFund" class="input" type="number" min="0" step="1" />
               </div>
               <div>
                 <div class="label mb-1">Rabatt (€)</div>
-                <input id="costDiscountEuro" class="input" type="number" min="0" step="0.5" />
+                <input id="costDiscountEuro" class="input" type="number" min="0" step="1" />
               </div>
               <div>
                 <div class="label mb-1">Rabatt (%)</div>
-                <input id="costDiscountPct" class="input" type="number" min="0" max="100" step="0.5" />
+                <input id="costDiscountPct" class="input" type="number" min="0" max="100" step="1" />
               </div>
             </div>
 
@@ -835,6 +1016,22 @@ space-y-3">
               <div id="costPerKidOut" class="text-2xl font-black">0,00 €</div>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <div class="label mb-1">Rundung</div>
+                <select id="costRounding" class="input">
+                  <option value="round">auf volle € runden</option>
+                  <option value="ceil">auf volle € aufrunden</option>
+                  <option value="floor">auf volle € abrunden</option>
+                  <option value="none">genau (auch krumm)</option>
+                </select>
+              </div>
+              <div>
+                <div class="label mb-1">Preis pro Kind manuell (€) (optional)</div>
+                <input id="costManualPerKid" class="input" type="number" min="0" step="1" />
+                <div class="text-xs text-slate-500 mt-1">0 lassen = automatisch.</div>
+              </div>
+            </div>
 
             <button id="applyCostToEvent" class="btn w-full" disabled>Als "Kosten pro Kind" in der Veranstaltung übernehmen</button>
 
@@ -884,6 +1081,11 @@ space-y-3">
             <label class="flex items-center gap-2 text-sm font-semibold">
               <input id="invSwim" type="checkbox" class="h-4 w-4" />
               Schwimmbad / Schwimmen: Text + Kreuz/Unterschrift anzeigen
+            </label>
+
+            <label class="flex items-center gap-2 text-sm font-semibold">
+              <input id="invCostHint" type="checkbox" class="h-4 w-4" />
+              Hinweis „Kosten können variieren“ in Einladung anzeigen
             </label>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -1081,6 +1283,7 @@ Mia;12
         introKey: 'cool',
         introCustom: '',
         swimConsent: false,
+        showCostHint: false, // Einladung: Hinweis "Kosten können variieren" anzeigen
       },
       people: {
         children: [],
@@ -1110,6 +1313,8 @@ Mia;12
         youthFund: 0,
         discountEuro: 0,
         discountPct: 0,
+        manualPerKid: 0, // 0 = automatisch
+        rounding: 'round', // none | round | ceil | floor
       }
     };
   }
@@ -1251,6 +1456,7 @@ Mia;12
     ['invIntroKey','event.introKey'],
     ['invIntroCustom','event.introCustom'],
     ['invSwim','event.swimConsent'],
+    ['invCostHint','event.showCostHint'],
 
     ['costMode','costing.mode'],
     ['costSplitMode','costing.splitMode'],
@@ -1269,6 +1475,8 @@ Mia;12
     ['costYouthFund','costing.youthFund'],
     ['costDiscountEuro','costing.discountEuro'],
     ['costDiscountPct','costing.discountPct'],
+    ['costManualPerKid','costing.manualPerKid'],
+    ['costRounding','costing.rounding'],
   ];
 
   function setByPath(obj, path, value){
@@ -1778,7 +1986,18 @@ Mia;12
 
     // split
     const denom = (c.splitMode==='all') ? (usedKids + usedCarers) : usedKids;
-    const perKid = denom > 0 ? (net / denom) : 0;
+    const perKidRaw = denom > 0 ? (net / denom) : 0;
+
+    // rounding / manual override
+    const mode = (c.rounding || 'round');
+    let perKidRounded = perKidRaw;
+    if(mode !== 'none'){
+      if(mode==='ceil') perKidRounded = Math.ceil(perKidRaw);
+      else if(mode==='floor') perKidRounded = Math.floor(perKidRaw);
+      else perKidRounded = Math.round(perKidRaw); // default: round
+    }
+    const manual = Number(c.manualPerKid || 0);
+    const perKid = (manual > 0) ? manual : perKidRounded;
 
     // output
     $('#costTotal').textContent = fmtEUR(total);
@@ -1787,6 +2006,12 @@ Mia;12
 
     const explain = [];
     explain.push(`Basis: Kinder ${usedKids}, Betreuer ${usedCarers}.`);
+    explain.push('Kinder = Einträge in der Kinderliste (nicht automatisch <18).');
+    if(denom>0){
+      if(manual>0) explain.push(`Preis pro Kind manuell: ${fmtEUR(perKid)}.`);
+      else if(mode !== 'none') explain.push(`Preis pro Kind gerundet: ${fmtEUR(perKidRaw)} → ${fmtEUR(perKid)}.`);
+    }
+
     if(c.useTiers){
       explain.push(`Altersstaffel aktiv: Anteil ${fmtEUR(tierPart)}.`);
     }
@@ -1800,7 +2025,7 @@ Mia;12
     // dashboard card
     $('#dashCostPerKid').textContent = denom>0 ? fmtEUR(perKid) : '–';
 
-    lastCostCalc = {total, net, perKid, usedKids, usedCarers};
+    lastCostCalc = {total, net, perKid, perKidRaw, usedKids, usedCarers, denom, mode, manual};
     const apply = $("#applyCostToEvent");
     if(apply) apply.disabled = !(perKid > 0);
 
@@ -1883,7 +2108,7 @@ Mia;12
             <div class="box">
               <h3>Kosten</h3>
               <p>${cost ? `ca. <b>${fmtEUR(cost)}</b>` : '—'}</p>
-              <p class="tiny">Hinweis: Der endgültige Betrag kann je nach Teilnehmerzahl variieren.</p>
+              ${plan.event.showCostHint ? '<p class="tiny">Hinweis: Der endgültige Betrag kann je nach Teilnehmerzahl variieren.</p>' : ''}
             </div>
             <div class="box">
               <h3>Kontakt</h3>
@@ -1920,7 +2145,7 @@ Mia;12
           <div class="footer">
             <div>
               <div class="tiny">Judo-Sport-Club Karlsdorf-Neuthard e.V.</div>
-              <div class="tiny">(Auto-generiert mit JSC-Ausflugs-Planer V4.2)</div>
+              <div class="tiny">(Auto-generiert mit JSC-Ausflugs-Planer V4.7)</div>
               <div class="tiny">L. Kempf 2026</div>
             </div>
             <div class="qr">
@@ -2191,10 +2416,10 @@ Mia;12
       plan.event.forms = 'https://forms.gle/beispiel';
       plan.event.bring = 'Trinkflasche\nHandtuch\nWechselkleidung';
       plan.event.program = 'Hinreise\nAktivität\nRückreise';
-      plan.people.children = [{name:'Max', age:10},{name:'Mia', age:12},{name:'Noah', age:9}];
-      plan.people.carers = [{name:'Lennard', phone:'', driver:true},{name:'Bastian', phone:'', driver:false}];
-      plan.cars = [{driver:'Lennard', label:'Kombi', seats:5}];
-      plan.tasks = [{text:'Einladung verschicken', done:false},{text:'Auto-Aufteilung final', done:false},{text:'Notfallnummern', done:false}];
+      plan.people.children = [{name:'Max', age:10},{name:'Mia', age:12},{name:'Noah', age:9},{name:'Luca', age:13},{name:'Lea', age:11},{name:'Jonas', age:14},{name:'Emma', age:10},{name:'Ben', age:12},{name:'Lina', age:9},{name:'Paul', age:15},{name:'Hannah', age:13},{name:'Finn', age:11},{name:'Sophie', age:16},{name:'Tom', age:10},{name:'Marie', age:12},{name:'Felix', age:14},{name:'Laura', age:9},{name:'Elias', age:13},{name:'Nina', age:11},{name:'Moritz', age:15}];
+      plan.people.carers = [{name:'Lennard', phone:'', driver:true},{name:'Bastian', phone:'', driver:true},{name:'Julia', phone:'', driver:true},{name:'Marvin', phone:'', driver:false},{name:'Sarah', phone:'', driver:false},{name:'Tim', phone:'', driver:true},{name:'Nadine', phone:'', driver:true},{name:'Kevin', phone:'', driver:false}];
+      plan.cars = [{driver:'Lennard', label:'Kombi', seats:5},{driver:'Julia', label:'Van', seats:8},{driver:'Tim', label:'Kombi', seats:5},{driver:'Nadine', label:'Bus', seats:9},{driver:'Bastian', label:'Kleinwagen', seats:4}];
+      plan.tasks = [{text:'Einladung verschicken', done:false},{text:'Anmeldungen prüfen', done:false},{text:'Auto-Aufteilung final', done:false},{text:'Notfallnummern', done:false},{text:'Einkauf/Verpflegung klären', done:false}];
       plan.costing.fixed = 0;
       plan.costing.perKid = 0;
       plan.costing.useTiers = true;
@@ -2238,7 +2463,7 @@ Mia;12
   // -------------------- login --------------------
   const LOGIN_KEY = 'jsc_login_ok_v42';
   const LOGIN_NAME_KEY = 'jsc_login_name_v42';
-  const REQUIRED_PW = 'judotanzaikido';
+  const REQUIRED_PW = 'Jugendvorstand';
 
   function updateHello(){
     const name = (sessionStorage.getItem(LOGIN_NAME_KEY) || '').trim();
@@ -2323,7 +2548,7 @@ Mia;12
       modal.classList.remove('hidden');
       if(mode==='children'){
         title.textContent = 'Kinder-Liste einfügen';
-        hint.textContent = 'Format: Name;Alter (optional). Auch Komma oder Tab geht.';
+        hint.textContent = 'Format: Name;Alter (optional). Auch Komma oder Tab geht. Tipp: Du kannst Spalten direkt aus Excel/Forms-Export kopieren und hier einfügen.';
         examples.textContent = 'Beispiele:  Max;10  |  Mia,12  |  Noah	9  |  NurName';
         ta.placeholder = `z.B.
 Max;10
@@ -2332,7 +2557,7 @@ Noah;9
 NurName`;
       }else{
         title.textContent = 'Betreuer-Liste einfügen';
-        hint.textContent = 'Format: Name;Telefon (optional);Fährt? (ja/nein). Auch Komma oder Tab geht.';
+        hint.textContent = 'Format: Name;Telefon (optional);Fährt? (ja/nein). Auch Komma oder Tab geht. Tipp: Du kannst Spalten direkt aus Excel/Forms-Export kopieren und hier einfügen.';
         examples.textContent = 'Beispiele:  Lennard;0151 123456;ja  |  Bastian;;nein';
         ta.placeholder = `z.B.
 Lennard;0151 123456;ja
@@ -2392,6 +2617,264 @@ Bastian;;nein`;
     });
   }
 
+
+
+  // -------------------- help / intro --------------------
+  const HELP_STEPS = [
+    {
+      title: "Kurzstart",
+      text: "Arbeite die Bereiche von links nach rechts durch. Am Ende kannst du die Einladung als PDF drucken.",
+      bullets: [
+        "Veranstaltung: Datum/Ort/Forms-Link eintragen.",
+        "Teilnehmer: Kinder & Betreuer hinzufügen (auch per Copy/Paste).",
+        "Autos: Fahrer markieren, Autos/Sitzplätze anlegen, dann berechnen.",
+        "Kosten: Fix + pro Person → Preis pro Kind.",
+        "Einladung: Vorschau prüfen → PDF drucken."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 5h8l2 2h6v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
+          <path d="M7 12h10M7 16h6"/>
+        </svg>`
+    },
+    {
+      title: "Speichern & Backup",
+      text: "Alles wird lokal im Browser gespeichert. Für Backup/Weitergabe kannst du den Plan exportieren.",
+      bullets: [
+        "„Speichern“ hält den aktuellen Stand auf diesem PC.",
+        "Tools → „Plan exportieren (JSON)“ = Backup / weitergeben.",
+        "Tools → „Plan importieren (JSON)“ = Backup wieder einladen."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2z"/>
+          <path d="M17 21v-8H7v8"/>
+          <path d="M7 5V3h10v2"/>
+        </svg>`
+    },
+    {
+      title: "Teilnehmer einfügen (Excel / Forms)",
+      text: "Am schnellsten über Copy/Paste: Excel-Zeilen kopieren und über „Liste einfügen…“ einfügen.",
+      bullets: [
+        "Eine Zeile = eine Person.",
+        "Kinder: „Name;Alter“ (Alter optional).",
+        "Betreuer: „Name;Telefon;Fährt?“ (ja/nein)."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+          <path d="M8 13h8M8 17h6"/>
+        </svg>`
+    },
+    {
+      title: "Fahrer & Autos",
+      text: "Betreuer mit „Fährt“ ✅ erscheinen als Fahrer. Danach legst du Autos an und stellst die Sitzplätze ein.",
+      bullets: [
+        "Teilnehmer → bei Betreuern „Fährt“ anhaken.",
+        "Autos → „Autos aus Fahrern erstellen“ spart Zeit.",
+        "Sitzplätze so einstellen wie im echten Auto."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 16l1-5a2 2 0 0 1 2-1.6h8A2 2 0 0 1 18 11l1 5"/>
+          <path d="M6 16h12"/>
+          <circle cx="8" cy="16.5" r="1.5"/>
+          <circle cx="16" cy="16.5" r="1.5"/>
+          <path d="M7 11h10"/>
+        </svg>`
+    },
+    {
+      title: "Auto-Aufteilung",
+      text: "Mit einem Klick werden alle auf die Autos verteilt. Danach kurz prüfen und bei Bedarf exportieren.",
+      bullets: [
+        "„Auto-Aufteilung berechnen“ → Ergebnis unten prüfen.",
+        "TXT = ideal für WhatsApp, CSV = gut für Excel/Sheets.",
+        "Wenn Plätze fehlen: mehr Sitze/Autos oder weniger Personen."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h7l2 2h9"/>
+          <path d="M3 6h7l2 2h9"/>
+          <path d="M3 18h7l2-2h9"/>
+        </svg>`
+    },
+    {
+      title: "Kosten",
+      text: "Du trägst Fixkosten und Kosten pro Person ein. Standard ist runde Euro – optional kannst du auch manuell festlegen.",
+      bullets: [
+        "Fixkosten = einmalig (z.B. Bus, Reservierung).",
+        "Pro Person getrennt für Kind/Betreuer.",
+        "Optional: Altersstaffel, Jugendkasse/Rabatte oder „Preis pro Kind manuell“."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1v22"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>`
+    },
+    {
+      title: "Einladung & PDF",
+      text: "Die Einladung wird automatisch aus deinen Angaben gebaut. Wenn ein Forms-Link drin ist, kommt der QR-Code automatisch dazu.",
+      bullets: [
+        "Anrede & Startsatz auswählen (oder eigener Text).",
+        "Optionen: Schwimmbad-Abschnitt und Kosten-Hinweis ein/aus.",
+        "„PDF drucken (A4)“ → im Druckdialog „Als PDF speichern“."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 7V3h10v4"/>
+          <path d="M7 17H5a2 2 0 0 1-2-2V11a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/>
+          <path d="M7 14h10v7H7z"/>
+        </svg>`
+    },
+    {
+      title: "Checkliste & Dashboard",
+      text: "Zum Schluss kurz prüfen: Aufgaben abhaken und offene Punkte checken.",
+      bullets: [
+        "Checkliste: Aufgaben anlegen und abhaken.",
+        "Dashboard: zeigt Warnungen (z.B. Plätze fehlen, Link fehlt, Aufgaben offen).",
+        "Schnellaktionen bringen dich direkt zum richtigen Bereich."
+      ],
+      icon: `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l2 2 4-4"/>
+          <path d="M21 12a9 9 0 1 1-9-9"/>
+        </svg>`
+    }
+  ];
+
+  let _helpStep = 0;
+  let _helpPrevOverflow = "";
+  let _helpKeyBound = false;
+
+  function helpIsOpen(){
+    const ov = $('#helpOverlay');
+    return ov && !ov.classList.contains('hidden');
+  }
+
+  function renderHelpStep(i){
+    _helpStep = Math.max(0, Math.min(HELP_STEPS.length-1, i));
+    const s = HELP_STEPS[_helpStep];
+
+    const titleEl = $('#helpStepTitle');
+    const textEl  = $('#helpStepText');
+    const bulletsEl = $('#helpStepBullets');
+    const iconHost = $('#helpIcon');
+
+    if(titleEl){
+      titleEl.textContent = s.title;
+      titleEl.classList.remove('helpStepAnim');
+      void titleEl.offsetWidth;
+      titleEl.classList.add('helpStepAnim');
+    }
+    if(textEl){
+      textEl.textContent = s.text;
+      textEl.classList.remove('helpStepAnim');
+      void textEl.offsetWidth;
+      textEl.classList.add('helpStepAnim');
+    }
+    if(bulletsEl){
+      bulletsEl.innerHTML = '';
+      (s.bullets || []).forEach(b=>{
+        const li = document.createElement('li');
+        li.textContent = b;
+        bulletsEl.appendChild(li);
+      });
+      bulletsEl.classList.remove('helpStepAnim');
+      void bulletsEl.offsetWidth;
+      bulletsEl.classList.add('helpStepAnim');
+    }
+    if(iconHost){
+      iconHost.innerHTML = `<div class="helpIconWrap helpStepAnim" style="color: var(--ui-bg)">${s.icon}</div>`;
+    }
+
+    // dots
+    const dots = $('#helpDots');
+    if(dots){
+      dots.innerHTML = HELP_STEPS.map((_, idx)=>`<button type="button" aria-label="Schritt ${idx+1}" data-idx="${idx}" data-active="${idx===_helpStep}"></button>`).join('');
+      dots.querySelectorAll('button').forEach(b=>{
+        b.addEventListener('click', ()=>renderHelpStep(Number(b.dataset.idx||0)));
+      });
+    }
+
+    // prev/next state
+    const prevBtn = $('#helpPrevBtn');
+    const nextBtn = $('#helpNextBtn');
+    if(prevBtn){
+      prevBtn.disabled = (_helpStep === 0);
+      prevBtn.style.opacity = (_helpStep === 0 ? ".55" : "1");
+    }
+    if(nextBtn){
+      const last = (_helpStep === HELP_STEPS.length-1);
+      nextBtn.textContent = last ? "Fertig ✓" : "Weiter →";
+    }
+  }
+
+  function openHelp(startAt=0){
+    const ov = $('#helpOverlay');
+    if(!ov) return;
+
+    _helpPrevOverflow = document.documentElement.style.overflow || "";
+    document.documentElement.style.overflow = "hidden";
+
+    ov.classList.remove('hidden');
+    ov.setAttribute('aria-hidden','false');
+    renderHelpStep(startAt);
+
+    // focus
+    setTimeout(()=>$('#helpNextBtn')?.focus(), 0);
+
+    if(!_helpKeyBound){
+      _helpKeyBound = true;
+      document.addEventListener('keydown', (e)=>{
+        if(!helpIsOpen()) return;
+
+        if(e.key === 'Escape'){
+          e.preventDefault();
+          closeHelp();
+          return;
+        }
+        if(e.key === 'Enter'){
+          // allow Enter to advance (unless user is tabbing around)
+          const tag = (document.activeElement && document.activeElement.tagName || "").toLowerCase();
+          if(tag === 'textarea') return;
+          e.preventDefault();
+          $('#helpNextBtn')?.click();
+          return;
+        }
+      });
+    }
+  }
+
+  function closeHelp(){
+    const ov = $('#helpOverlay');
+    if(!ov) return;
+    ov.classList.add('hidden');
+    ov.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow = _helpPrevOverflow;
+  }
+
+  function setupHelp(){
+    const btn = $('#helpBtn');
+    const ov = $('#helpOverlay');
+    if(!btn || !ov) return;
+
+    btn.addEventListener('click', ()=>openHelp(0));
+    $('#helpCloseBtn')?.addEventListener('click', closeHelp);
+    $('#helpPrevBtn')?.addEventListener('click', ()=>renderHelpStep(_helpStep-1));
+    $('#helpNextBtn')?.addEventListener('click', ()=>{
+      if(_helpStep >= HELP_STEPS.length-1){ closeHelp(); return; }
+      renderHelpStep(_helpStep+1);
+    });
+
+    // close by backdrop click
+    ov.addEventListener('click', (e)=>{
+      const t = e.target;
+      if(t && t.dataset && t.dataset.helpClose === "true") closeHelp();
+    });
+  }
+
   // -------------------- init --------------------// -------------------- init --------------------
   function init(){
     runBootSplash();
@@ -2402,6 +2885,8 @@ Bastian;;nein`;
     bindGoButtons();
     setupToolsMenu();
 
+
+    setupHelp();
     hydrateBindings();
 
     // initialize tables
@@ -2426,10 +2911,10 @@ Bastian;;nein`;
     // apply cost-per-kid to event
     $('#applyCostToEvent')?.addEventListener('click', ()=>{
       if(!lastCostCalc || !(lastCostCalc.perKid > 0)) return;
-      const v = Math.round(lastCostCalc.perKid*100)/100;
+      const v = Number(lastCostCalc.perKid || 0);
       plan.event.cost = v;
       const inp = $('#evCost');
-      if(inp) inp.value = String(v).replace('.', ',');
+      if(inp) inp.value = String(v); // number input uses dot
       save();
       refreshInvitation();
       refreshDashboard();
